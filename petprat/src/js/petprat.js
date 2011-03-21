@@ -1,35 +1,3 @@
-// TODO
-// X Automatically update list periodically.
-// - Fix time offset in listshouts script.
-// * Fix icon on play/pause button, switch icon when tapped.
-// X Make listshouts script display messages with userid:0 and modify shoutbridge to skip them instead.
-// - Allow entering login information (optionally save in storage)
-// X Handle /me messages
-// X Create links from URL's
-// * Don't autoscroll if not at bottom.
-// X Add longpoll to listshouts and use that to automatically update list when new message is written.
-// * When a message is tapped, parse it for links and open in inline browser.
-// * Possibly match image/video urls automatically to only show image/video instead of page.
-// X Only allow X items in list, automatically remove oldest when X is reached.
-// - Load users avatars as well and show next to names (in small format, maximize when tapped)
-// * When in landscape mode, add list of active users in tab to the right.
-// X When a user is tapped, automatically enter their name in the textfield.
-// * Open up profile info when double-tapping user (or something)
-// * Allow multiple accounts
-// * Create class with adapters for different shout boxes.
-// X REST call to get user profile info (avatar, user color, name etc)
-// avatarurl = http://www.rollspel.nu/forum/userimages/2612.jpg
-// * listshouts should follow user ignore lists.
-// * Cleanup: move code into separate files for mvc etc.
-// X Cleanup: register model properly
-// * Cleanup: Stop overriding store.load() and just use the correct proxy
-// X Message about successful/failed login.
-// X Message about failed sent message. -> open up login box?
-// * If not logged in, disable text box.
-// X On startup, check user id from cookie and load user info based on it.
-// * User list should show latest activity, and maybe display a badge if they've been active in the last 5-10 minutes.
-// * Show badges in user list for admins/mods.
-// * Entire list seems to be refreshed when messsages are added.
 Ext.setup({
     tabletStartupScreen: 'images/tablet_startup.png',
     phoneStartupScreen: 'images/phone_startup.png',
@@ -37,8 +5,8 @@ Ext.setup({
     glossOnIcon: false,
     onReady: function() {
         var appTitle = 'Pet Prat';
-        var maxMessages = 50; // increase when list refresh is fixed
-        var URL = 'http://www.rollspel.nu/forum/ubbthreads.php';
+        var maxMessages = 50;
+        var URL = 'http://www.example.com/forum/ubbthreads.php';
         var prefix = "ubb7_ubbt_"
         var startId = 0;
         var running = false;
@@ -159,20 +127,6 @@ Ext.setup({
                     }
                 }
             }, true);
-            /*
-            ajaxReq(
-                URL,
-                { ubb: 'listshouts', action: 'showuser', format: 'json', id: id },
-                function(data) {
-                    if (data) {
-                        //console.log("Loaded user info:\n", dump(data), "old user:\n", dump(user));
-                        if (data.users && data.users.length > 0) {
-                            updateUser(id, data.users[0]);
-                        }
-                    }
-                }
-            );
-            */
         };
         var loginUser = function() {
             // if user/pass stored, login directly, otherwise open login panel
@@ -257,15 +211,6 @@ Ext.setup({
             }
         };
         var scrollToBottom = function(animate) {
-            /*
-            var s = messageList.scroller;
-            var scrollHeight = s.el.dom.parentNode.offsetHeight;
-            var height = s.el.getHeight();
-            console.log('scroller:', s, s.getOffset(), scrollHeight, height);
-            var newY = height - scrollHeight;
-            console.log('scrollTo:', newY);
-            s.scrollTo({x: 0, y: newY}, false);
-            */
             messageList.scroller.updateBoundary();
             messageList.scroller.scrollTo({x: 0, y:messageList.scroller.size.height}, animate);
         };
@@ -337,21 +282,6 @@ Ext.setup({
             scrollToBottom(false);
             highlightMessages();
             addUsers(data);
-            /*
-            var msg = messageList.getStore().last();
-            console.log('Latest message:', msg);
-            var node = messageList.getNode(msg);
-            console.log('messageList', messageList, 'node:', node);
-            if (node) {
-                console.log('found node:', node);
-                node.scrollIntoView(messageList.scroller, true);
-            }
-            */
-            /*
-            var offsetY = messageList.getEl().dom.scrollHeight;
-            console.log('scrollHeight:', offsetY);
-            messageList.scroller.scrollTo({ x: 0, y: offsetY });
-            */
         }
 
         var addUsername = function(username) {
@@ -416,28 +346,6 @@ Ext.setup({
                 }
             );
         };
-        /*
-        var sendMessage = function() {
-            var message = textField.getValue();
-            ajaxReq(
-                URL,
-                { ubb: 'listshouts', action: 'send', secret: secret, user_id: user.id, user_name: user.name, message: message },
-                function(data) {
-                    console.log('Message sent ok.', data);
-                    if (data == "OK") {
-                        var rec = msgStore.loadData([{
-                            id: undefined,
-                            user_id: user.id,
-                            username: user.name,
-                            body: message,
-                            time: getUnixtime()
-                        }], true);
-                        textField.reset();
-                    }
-                }
-            );
-        };
-        */
 
         var loginUserViaForm = function(form) {
             var vals = form.getValues();
@@ -478,7 +386,6 @@ Ext.setup({
             model: 'Message', autoLoad: true, scroll: 'vertical',
             sorters: [ { property: 'id', direction: 'ASC' } ],
             load: function(opts) {
-                //Ext.getBody().mask('Loading...', 'x-mask-loading', false);
                 var store = this;
                 ajaxReq(
                     URL, 
@@ -494,10 +401,6 @@ Ext.setup({
                         }
                         checkUser();
                         delayMessageReading();
-                        // When request fails, delayMessageReading() needs to be called as well.
-
-                        //Ext.getBody().unmask();
-
                     },
                     {
                         failure: function(response, opts) {
@@ -506,7 +409,6 @@ Ext.setup({
                         }
                     }
                 );
-                //return Ext.data.Store.superclass.load.call(store, opts);
             },
             listeners: {
                 load: onMessageUpdate, add: function() { console.log('addmsgstore', arguments); }
@@ -652,23 +554,10 @@ Ext.setup({
             listeners: { 'action': { 'fn': sendMessage, 'scope': this } }
         });
 
-        //var panel = new Ext.Panel({
         var panel = new Ext.Carousel({
             fullscreen: true, cardSwitchAnimation: 'slide', direction: 'horizontal', //flex: 1,
             layout: { type: 'fit', align: 'stretch' },
             defaults: { cls: 'card', flex: 1, style: 'position: absolute' }, activeItem: 0, 
-            /*
-            listeners: {
-                'cardswitch': function(carousel, newCard, oldCard) {
-                    console.log('cardswitch', carousel, newCard, oldCard);
-                    //oldCard.hide();
-                    //newCard.show();
-                },
-                'beforecardswitch': function(carousel, card) {
-                    console.log('beforecardswitch', carousel, card);
-                }
-            },
-            */
             dockedItems: [
                 { xtype: 'toolbar', dock: 'top', title: appTitle,
                   items: [loginButton, { xtype: 'spacer' }, refreshButton] },
