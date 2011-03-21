@@ -1,0 +1,687 @@
+// TODO
+// X Automatically update list periodically.
+// - Fix time offset in listshouts script.
+// * Fix icon on play/pause button, switch icon when tapped.
+// X Make listshouts script display messages with userid:0 and modify shoutbridge to skip them instead.
+// - Allow entering login information (optionally save in storage)
+// X Handle /me messages
+// X Create links from URL's
+// * Don't autoscroll if not at bottom.
+// X Add longpoll to listshouts and use that to automatically update list when new message is written.
+// * When a message is tapped, parse it for links and open in inline browser.
+// * Possibly match image/video urls automatically to only show image/video instead of page.
+// X Only allow X items in list, automatically remove oldest when X is reached.
+// - Load users avatars as well and show next to names (in small format, maximize when tapped)
+// * When in landscape mode, add list of active users in tab to the right.
+// X When a user is tapped, automatically enter their name in the textfield.
+// * Open up profile info when double-tapping user (or something)
+// * Allow multiple accounts
+// * Create class with adapters for different shout boxes.
+// X REST call to get user profile info (avatar, user color, name etc)
+// avatarurl = http://www.rollspel.nu/forum/userimages/2612.jpg
+// * listshouts should follow user ignore lists.
+// * Cleanup: move code into separate files for mvc etc.
+// X Cleanup: register model properly
+// * Cleanup: Stop overriding store.load() and just use the correct proxy
+// X Message about successful/failed login.
+// X Message about failed sent message. -> open up login box?
+// * If not logged in, disable text box.
+// X On startup, check user id from cookie and load user info based on it.
+// * User list should show latest activity, and maybe display a badge if they've been active in the last 5-10 minutes.
+// * Show badges in user list for admins/mods.
+// * Entire list seems to be refreshed when messsages are added.
+Ext.setup({
+    tabletStartupScreen: 'images/tablet_startup.png',
+    phoneStartupScreen: 'images/phone_startup.png',
+    icon: 'images/icon.png',
+    glossOnIcon: false,
+    onReady: function() {
+        var appTitle = 'Pet Prat';
+        var maxMessages = 50; // increase when list refresh is fixed
+        var URL = 'http://www.rollspel.nu/forum/ubbthreads.php';
+        var prefix = "ubb7_ubbt_"
+        var startId = 0;
+        var running = false;
+        var user = {};
+        var getUnixtime = function() {
+            var d = new Date;
+            var unixtime_ms = d.getTime();
+            var unixtime = parseInt(unixtime_ms / 1000);
+            return unixtime;
+        };
+        var helperFunctions = {
+            compiled: true,
+            formatMessageBody: function(values) {
+                var text = values.body;
+                text = linkify(text);
+                var newtext = text.replace(/^\/me /, values.username + ' ');
+                if (text != newtext) {
+                    return '<span class="me">' + newtext + '</span>';
+                } else {
+                    return text;
+                }
+            },
+            formatTime: function(t) {
+                return Date.parseDate(t, 'U').format('H:i:s');
+            },
+            showAvatar: function(t) {
+                if (t && t != 'http://') {
+                    return t;
+                } else {
+                    return "images/noavatar.png";
+                }
+            },
+            showUserColor: function(c) {
+                return c ? " style='color: " + c + ";'" : '';
+            },
+            getUserColor: function(values) {
+                var idx = userStore.findExact('user_id', values['user_id']);
+                //console.log('getuserColor rec:', userStore, idx, values['user_id']);
+                if (!idx || idx === -1) return;
+                var rec = userStore.getAt(idx);
+                //console.log('rec:', rec);
+                if (rec) {
+                    //console.log(this, rec, rec.get('namecolor'), idx, this.showUserColor(rec.get('namecolor')));
+                    return this.showUserColor(rec.get('namecolor'));
+                } else {
+                    return '';
+                }
+            },
+            highlightUser: function(values) {
+                if (!user.username || !values.body) {
+                    return;
+                }
+                var pos = values.body.toLowerCase().indexOf(user.username.toLowerCase());
+                if (pos >= 0) {
+                    return "highlightUser";
+                }
+            }
+        }
+        var readCookie = function(name) {
+            var nameEQ = prefix + name + "=";
+            var ca = document.cookie.split(';');
+            for(var i=0;i < ca.length;i++) {
+                var c = ca[i];
+                while (c.charAt(0)==' ') c = c.substring(1,c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+            }
+            return null;
+        };
+        var highlightMessages = function() {
+            if (!user.username) { return; }
+            var els = Ext.select("div[class=x-list-item]");
+            if (els) {
+                els.each(function(el, c, idx) {
+                    var body = Ext.select("div[class=message-text]", el.dom).first();
+                    //console.log("checking body:", body);
+                    if (!body) { return; }
+                    var bodytext = body.dom.innerText.toLowerCase();
+                    var username = user.username.toLowerCase();
+                    //console.log('bodytext:', bodytext, 'username:', username);
+                    if (bodytext.indexOf(username) >= 0) {
+                        el.addCls("highlightUser");
+                    } else {
+                        el.removeCls('highlightUser');
+                    }
+                });
+            }
+        };
+        var updateUser = function(id, data) {
+            //console.log('updateUser - user', dump(user), 'data', dump(data));
+            user.id = id;
+            user = Ext.apply(user, data);
+            var topToolbar = panel.getDockedComponent(0);
+            var btn = topToolbar.getComponent('loginButton');
+            if (user.username && btn) {
+                btn.setText('Logged in as: ' + user.username);
+            }
+
+            // Highlight messages by this user
+            highlightMessages();
+        };
+        var dump = function(obj) {
+            var str = "";
+            for (var i in obj) if (obj.hasOwnProperty(i)) {
+                str += i + " = " + obj[i] + "\n";
+            }
+            return str;
+        };
+        var loadUserInfo = function(id) {
+            // TODO: Use userStore.load instead
+            //console.log('loadUserInfo', id);
+            userStore.load({
+                addRecords: true,
+                params: { id: id },
+                callback: function(recs, op, success) {
+                    if (success && recs.length > 0) {
+                        updateUser(id, recs[0].data);
+                        console.log('userStore:', userStore);
+                    }
+                }
+            }, true);
+            /*
+            ajaxReq(
+                URL,
+                { ubb: 'listshouts', action: 'showuser', format: 'json', id: id },
+                function(data) {
+                    if (data) {
+                        //console.log("Loaded user info:\n", dump(data), "old user:\n", dump(user));
+                        if (data.users && data.users.length > 0) {
+                            updateUser(id, data.users[0]);
+                        }
+                    }
+                }
+            );
+            */
+        };
+        var loginUser = function() {
+            // if user/pass stored, login directly, otherwise open login panel
+            loginPanel.show();
+        };
+        var checkUser = function() {
+            //console.log('checkUser');
+            if (user.username) {
+                return;
+            }
+            var id = readCookie('myid');
+            if (id > 0) {
+                user.id = id;
+                loadUserInfo(id);
+            } else {
+                loginUser();
+            }
+        };
+        var playPauseHandler = function() {
+            var topToolbar = panel.getDockedComponent(0);
+            var btn = topToolbar.getComponent('btnPlayPause');
+            if (this.running) {
+                console.log('stop loading', btn);
+                btn.addCls('x-button-pressed');
+                stopLoading();
+            } else {
+                console.log('refresh messages', btn);
+                btn.removeCls('x-button-pressed');
+                refreshMessages();
+            }
+        };
+        var refreshMessages = function() {
+            startId = 0;
+            loadMessages();
+        };
+        var loadMessages = function() {
+            this.running = true;
+            msgreader.cancel();
+            msgStore.load();
+        };
+        var stopLoading = function() {
+            msgreader.cancel();
+            this.running = false;
+        };
+        var msgreader = new Ext.util.DelayedTask(loadMessages);
+        var delayMessageReading = function() {
+            this.running = true;
+            msgreader.delay(1000);
+        }
+        var parseLinkFromText = function(text) {};
+        var ajaxReq = function(url, params, cb, opts) {
+            //params = Ext.apply({}, params, { format: 'json' });
+            opts = opts || {};
+            Ext.Ajax.request({
+                url: url,
+                method: opts.method || 'GET',
+                params: params,
+                failure: opts.failure || function(response, opts) {
+                    console.log('Failed loading:', response, opts);
+                    //Ext.getBody().unmask();
+                },
+                success: function(response, opts) {
+                    var data = response.responseText;
+                    if (data && opts.params.format == "json") {
+                        //console.log("Decoding json");
+                        data = Ext.util.JSON.decode(data);
+                    }
+                    if (cb) {
+                        //console.log('received data:', data);
+                        cb(data, response, opts);
+                    }
+                }
+            });
+        };
+        var updateStartValue = function() {
+            var last = msgStore.last();
+            if (last) {
+                var lastId = last.get('id');
+                if (lastId > startId) {
+                    startId = lastId;
+                }
+            }
+        };
+        var scrollToBottom = function(animate) {
+            /*
+            var s = messageList.scroller;
+            var scrollHeight = s.el.dom.parentNode.offsetHeight;
+            var height = s.el.getHeight();
+            console.log('scroller:', s, s.getOffset(), scrollHeight, height);
+            var newY = height - scrollHeight;
+            console.log('scrollTo:', newY);
+            s.scrollTo({x: 0, y: newY}, false);
+            */
+            messageList.scroller.updateBoundary();
+            messageList.scroller.scrollTo({x: 0, y:messageList.scroller.size.height}, animate);
+        };
+        var pruneMessages = function(store) {
+            //console.log('pruneMessages');
+            var count = store.getCount();
+            if (count > maxMessages) {
+                var purgeItems = store.getRange(0, count - maxMessages - 1);
+                console.log("Purging old messages:", purgeItems);
+                store.remove(purgeItems);
+            }
+        };
+        var updateMessages = function(users) {
+            var userids = [];
+            for (var i in users) if (users.hasOwnProperty(i)) {
+                userids.push(users[i].get('user_id'));
+            }
+            var msgs = messageList.queryBy(function(rec, id) {
+                if (users.indexOf(rec.get('user_id')) >= 0) {
+                    rec.commit();
+                }
+            });
+        };
+        var onAddUser = function(store, recs, idx) {
+            purgeOldUsers();
+            updateMessages(recs);
+        };
+        var purgeOldUsers = function() {
+            //var msgids = getAllUsers(messageList.getRange());
+            console.log('Purging old users.');
+            userList.each(function(rec) {
+                var userid = rec.get('user_id');
+                //if (msgids.indexOf(rec.get('user_id')) === -1) {
+                if (messageList.findExact('user_id', rec.get('user_id')) === -1) {
+                    console.log('Removing old user:', rec);
+                    userList.remove(rec);
+                }
+            });
+        };
+        var getAllUsers = function(msgs) {
+            var ids = [];
+            for (var i in msgs) if (msgs.hasOwnProperty(i)) {
+                var uid = msgs[i].get('user_id');
+                if (ids.indexOf(uid) === -1) {
+                    var urec = userStore.findExact('user_id', uid);
+                    if (urec === -1) {
+                        ids.push(uid);
+                    }
+                }
+            }
+            return ids;
+        };
+        var addUsers = function(msgs) {
+            var ids = getAllUsers(msgs);
+            if (ids.length > 0 ) {
+                userStore.load({
+                    addRecords: true,
+                    params: { id: ids.join(',') },
+                    callback: function(recs, op, success) {
+                        console.log('loaded users.', recs);
+                    }
+                }, true);
+            }
+        };
+        var onMessageUpdate = function(store, data, success) {
+            //console.log('onMessageUpdate');
+            updateStartValue();
+            pruneMessages(store);
+            scrollToBottom(false);
+            highlightMessages();
+            addUsers(data);
+            /*
+            var msg = messageList.getStore().last();
+            console.log('Latest message:', msg);
+            var node = messageList.getNode(msg);
+            console.log('messageList', messageList, 'node:', node);
+            if (node) {
+                console.log('found node:', node);
+                node.scrollIntoView(messageList.scroller, true);
+            }
+            */
+            /*
+            var offsetY = messageList.getEl().dom.scrollHeight;
+            console.log('scrollHeight:', offsetY);
+            messageList.scroller.scrollTo({ x: 0, y: offsetY });
+            */
+        }
+
+        var addUsername = function(username) {
+            var tbar = panel.getDockedComponent(1);
+            var msgField = tbar.getComponent('messageField');
+            var text = msgField.getValue();
+            if (text) {
+                text = text + ' ' + username;
+            } else {
+                text = username + ': ';
+            }
+            msgField.setValue(text);
+            msgField.focus();
+        };
+
+        var onSwipeMessage = function(dv, idx, itm, ev) {
+            console.log('swipe item', ev);
+        };
+
+        var onSwipeUser = function(dv, idx, itm, ev) {
+            console.log('swipe user', ev);
+        };
+
+        var onTapItem = function(dv, idx, itm, ev) {
+            console.log('item tapped:', dv, idx, itm, ev);
+            var rec = dv.getRecord(itm);
+            if (!rec) {
+                console.log("No record at tapped id", idx);
+                return;
+            }
+            console.log('item rec:', rec);
+            var username = rec.get('username');
+            addUsername(username);
+
+            // Find link in message
+            var link = parseLinkFromText(rec.body);
+            if (link) {
+                // Do something
+            }
+        };
+
+        var sendMessage = function() {
+            var message = textField.getValue();
+            ajaxReq(
+                URL,
+                { ubb: 'shoutit', shout: message },
+                function(data, resp, opts) {
+                    console.log('Message sent ok.', data, resp, opts);
+                    textField.reset();
+                },
+                {
+                    method: 'POST',
+                    failure: function(resp, opts) {
+                        Ext.Msg.alert(
+                            'Error posting',
+                            "Couldn't post message.",
+                            function() {
+                                loginPanel.show();
+                            }
+                        );
+                    }
+                }
+            );
+        };
+        /*
+        var sendMessage = function() {
+            var message = textField.getValue();
+            ajaxReq(
+                URL,
+                { ubb: 'listshouts', action: 'send', secret: secret, user_id: user.id, user_name: user.name, message: message },
+                function(data) {
+                    console.log('Message sent ok.', data);
+                    if (data == "OK") {
+                        var rec = msgStore.loadData([{
+                            id: undefined,
+                            user_id: user.id,
+                            username: user.name,
+                            body: message,
+                            time: getUnixtime()
+                        }], true);
+                        textField.reset();
+                    }
+                }
+            );
+        };
+        */
+
+        var loginUserViaForm = function(form) {
+            var vals = form.getValues();
+            ajaxReq(
+                URL,
+                { ubb: 'start_page', Loginname: vals.Loginname, Loginpass: vals.Loginpass, rememberme: '1', firstlogin: '1', buttlogin: 'Logga in' },
+                function(data, resp, opts) {
+                    //console.log('login returned:', resp, opts, resp.getAllResponseHeaders());
+                    var cookieuser = readCookie("myid");
+                    //console.log("Cookie myid=", cookieuser);
+                    if (cookieuser > 0) {
+                        // When backend api has login functionality, it should return user info directly.
+                        form.hide();
+                        updateUser(cookieuser, {
+                            //username: vals.Loginname,
+                            password: vals.Loginpass
+                        });
+                        loadUserInfo(cookieuser);
+                    } else {
+                        Ext.Msg.alert("Login error", "There was an error logging in. Please try again.");
+                    }
+                    //ubb7_ubbt_myid
+                },
+                {
+                    method: 'POST',
+                    failure: function(resp, opts) {
+                        Ext.Msg.alert("Login error", "There was an error logging in. Please try again.");
+                    }
+                }
+            );
+            return false;
+        };
+
+        Ext.regModel('Message', {
+            fields: ['id', 'user_id', 'username', 'body', 'time', 'avatar']
+        });
+        var msgStore = new Ext.data.Store({
+            model: 'Message', autoLoad: true, scroll: 'vertical',
+            sorters: [ { property: 'id', direction: 'ASC' } ],
+            load: function(opts) {
+                //Ext.getBody().mask('Loading...', 'x-mask-loading', false);
+                var store = this;
+                ajaxReq(
+                    URL, 
+                    { ubb: 'listshouts', start: startId, format: 'json', showlocal: '1', longpoll: '1' },
+                    function(data) {
+
+                        // Update the message list
+                        if (data && data.length > 0) {
+                            var append = startId ? true : false;
+                            store.loadData(data, append);
+                            store.fireEvent('load', store, data, true);
+                            //store.fireEvent('add', store, data, true);
+                        }
+                        checkUser();
+                        delayMessageReading();
+                        // When request fails, delayMessageReading() needs to be called as well.
+
+                        //Ext.getBody().unmask();
+
+                    },
+                    {
+                        failure: function(response, opts) {
+                            console.log('Failed loading shout messages.', response, opts);
+                            delayMessageReading();
+                        }
+                    }
+                );
+                //return Ext.data.Store.superclass.load.call(store, opts);
+            },
+            listeners: {
+                load: onMessageUpdate, add: function() { console.log('addmsgstore', arguments); }
+            }
+        });
+
+        Ext.regModel('User', {
+            fields: ['user_id', 'username', 'avatar', 'title', 'namecolor', 'email', 'homepage',
+            'occupation', 'location', 'hobbies'],
+        });
+        var userStore = new Ext.data.Store({
+            model: 'User', scroll: 'vertical',
+            proxy: {
+                type: 'ajax', url: URL,
+                extraParams: { 'ubb': 'listshouts', 'action': 'showuser', 'format': 'json' },
+                reader: { type: 'json', root: 'users', idProperty: 'user_id' }
+            },
+            sorters: [{
+                property: 'username', direction: 'ASC',
+                sorterFn: function(o1, o2) {
+                    var v1 = this.getRoot(o1)[this.property].toLowerCase(),
+                        v2 = this.getRoot(o2)[this.property].toLowerCase();
+                    return v1 > v2 ? 1 : (v1 < v2 ? -1 : 0);
+                },
+            }],
+            listeners: {
+                add: onAddUser,
+                scope: this
+            }
+        });
+
+        // Main panels
+        var loginPanel = new Ext.form.FormPanel({
+            url: URL, baseParams: { ubb: 'login', action: 'send', rememberme: 1 },
+            fullscreen: false, cardSwitchAnimation: 'pop', frame: true, submitOnAction: true,
+            autoRender: true, floating: true, modal: true, centered: true, title: 'Enter credentials',
+            hideOnMaskTap: false, scroll: 'vertical', monitorValid: true, standardSubmit: false,
+            items: [
+                { xtype: 'textfield', label: 'Username', name: 'Loginname', allowBlank: false,
+                  autoCapitalize: false, useClearIcon: true, autoCorrect: false,
+                  autoComplete: false },
+                { xtype: 'passwordfield', label: 'Password', name: 'Loginpass', allowBlank: false }
+            ],
+            dockedItems: {
+                xtype: 'toolbar', dock: 'bottom',
+                items: [
+                    { xtype: 'spacer' },
+                    { xtype: 'button', text: 'Close',
+                        handler: function() {
+                            loginPanel.hide();
+                        }
+                    },
+                    { xtype: 'button', ui: 'confirm', text: 'Login',
+                        handler: function() {
+                            loginUserViaForm(loginPanel);
+                        }
+                    }
+                ]
+            },
+            listeners: { beforesubmit: loginUserViaForm }
+        });
+
+        var messageList = new Ext.List({
+            title: 'Messages', scroll: 'vertical', itemSelector: 'div[class*=messageItem]',
+            store: msgStore, multiSelect: false, singleSelect: false,
+            pinHeaders: false, indexBar: false, pressedCls: '',
+            listeners: { 'itemtap': onTapItem, scope: this },
+            itemTpl: new Ext.XTemplate(
+                '<div class="messageItem">',
+                    '<div class="avatar">',
+                        '<img src="{avatar:this.showAvatar}" />',
+                    '</div>',
+                    //'<div class="message-body {[ this.highlightUser(values) ]}">',
+                    '<div class="message-body">',
+                        '<div class="message-row">',
+                            '<div class="message-username" {[ this.getUserColor(values) ]}>{username}</div>',
+                            '<div class="message-info">',
+                                '<span class="message-time">{time:this.formatTime}</span>',
+                            '</div>',
+                        '</div>',
+                        '<div class="message-row">',
+                            '<div class="message-text">{[ this.formatMessageBody(values) ]}</div>',
+                        '</div>',
+                    '</div>',
+                '</div>',
+                helperFunctions
+            )
+        });
+
+        var userList = new Ext.List({
+            title: 'Users', scroll: 'vertical', itemSelector: 'div[class=user]',
+            store: userStore, multiSelect: false, singleSelect: false, //width: 150,
+            pinHeaders: false, indexBar: false,
+            //listeners: { 'itemswipe': onSwipeUser, scope: this },
+            //fields: ['user_id', 'username', 'avatar', 'title', 'namecolor', 'email', 'homepage',
+            //'occupation', 'location', 'hobbies'],
+            itemTpl: new Ext.XTemplate(
+                '<div class="user">',
+                    '<div class="avatar">',
+                        '<img src="{avatar:this.showAvatar}" />',
+                    '</div>',
+                    '<div class="user-body">',
+                        '<div class="user-row">',
+                            '<div class="user-username" {namecolor:this.showUserColor}>{username}</div>',
+                        '</div>',
+                        '<div class="user-row">',
+                            '<div class="user-text">',
+                                '<tpl if="title">',
+                                    '<span class="user-label">Titel:</span> {title} ',
+                                '</tpl>',
+                                '<tpl if="location">',
+                                    '<span class="user-label">Hemort:</span> {location} ',
+                                '</tpl>',
+                                '<tpl if="occupation">',
+                                    '<span class="user-label">Uppehälle:</span> {occupation} ',
+                                '</tpl>',
+                                '<tpl if="hobbies">',
+                                    '<span class="user-label">Hobbyer:</span> {hobbies} ',
+                                '</tpl>',
+                            '</div>',
+                        '</div>',
+                    '</div>',
+                '</div>',
+                helperFunctions
+            )
+        });
+
+        // Top Dock
+        var loginButton = {
+            xtype: 'button', text: 'Login', ui: 'small', cls: 'btnLogin', itemId: 'loginButton',
+            handler: function() {
+                loginPanel.show();
+                loginPanel.doLayout();
+            }
+        };
+        var refreshButton = {
+            xtype: 'button', ui: 'small', cls: 'btnPlayPause', itemId: 'btnPlayPause',
+            handler: playPauseHandler
+        };
+        var textField = new Ext.form.Text({
+            autoComplete: true, autoCapitalize: true, autoCorrect: true, placeHolder: 'Skriv meddelande...',
+            itemId: 'messageField', flex: 1,
+            listeners: { 'action': { 'fn': sendMessage, 'scope': this } }
+        });
+
+        //var panel = new Ext.Panel({
+        var panel = new Ext.Carousel({
+            fullscreen: true, cardSwitchAnimation: 'slide', direction: 'horizontal', //flex: 1,
+            layout: { type: 'fit', align: 'stretch' },
+            defaults: { cls: 'card', flex: 1, style: 'position: absolute' }, activeItem: 0, 
+            /*
+            listeners: {
+                'cardswitch': function(carousel, newCard, oldCard) {
+                    console.log('cardswitch', carousel, newCard, oldCard);
+                    //oldCard.hide();
+                    //newCard.show();
+                },
+                'beforecardswitch': function(carousel, card) {
+                    console.log('beforecardswitch', carousel, card);
+                }
+            },
+            */
+            dockedItems: [
+                { xtype: 'toolbar', dock: 'top', title: appTitle,
+                  items: [loginButton, { xtype: 'spacer' }, refreshButton] },
+                { xtype: 'toolbar', dock: 'bottom', 
+                  layout: { type: 'hbox', align: 'stretch' },
+                  items: [textField] }
+            ],
+            items: [messageList, userList]
+        });
+        panel.on('orientationchange', function() {
+            this.el.parent().setSize(window.innerWidth, window.innerHeight);
+        });
+
+    }
+});
+

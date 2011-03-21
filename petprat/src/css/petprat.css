@@ -1,0 +1,18 @@
+.avatar { float: left; padding-right: 10px; width: 40px; height: 40px; }
+.avatar img { width: 40px; height: 40px; }
+.message-body { margin-left: 50px; min-height: 40px; }
+.message-row { display: block; position: relative; line-height: 15px; }
+.message-info { display: inline-block; margin-right: 10px; float: right;  }
+.message-time { color: #999; font-size: 10px!important; line-height: 10px; }
+.message-username { display: inline-block; color: #333; line-height: 14px; font-size: 12px; font-weight: bold; }
+.message-text { padding: 0; font-family: Arial,"Helvetica Neue",sans-serif; font-size: 15px; line-height: 19px; word-wrap: break-word; color: #444; }
+.me { color: red; font-size: 15px!important; }
+.highlightUser { background: #eec; }
+.user-body { margin-left: 50px; min-height: 40px; }
+.user-row { display: block; position: relative; line-height: 15px; }
+.user-username { display: inline-block; color: #333; line-height: 19px; font-size: 16px; font-weight: bold; }
+.user-text { padding: 0; font-family: Arial,"Helvetica Neue",sans-serif; font-size: 12px; line-height: 16px; word-wrap: break-word; color: #444; }
+.user-label { font-weight: bold; padding-left: 5px; }
+.x-button.btnPlayPause.x-button-small { width: 40px; height: 40px; background: url(../images/play-pause.png); }
+/* .x-button.btnAction.x-button-normal { width: 40px; height: 40px; url() } */
+
