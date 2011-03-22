@@ -46,7 +46,7 @@ Ext.setup({
             formatMessageBody: function(values) {
                 var text = values.body;
                 text = linkify(text);
-                var newtext = text.replace(/^\/me /, values.username + ' ');
+                var newtext = text.replace(/^\/me /, '* ' + values.username + ' ');
                 if (text != newtext) {
                     return '<span class="me">' + newtext + '</span>';
                 } else {
