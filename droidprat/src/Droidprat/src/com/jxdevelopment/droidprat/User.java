@@ -14,47 +14,47 @@ public class User {
 	String member_level;
 	
 	public String getUser_id() {
-		return user_id;
+		return this.user_id;
 	}
 	public String getUsername() {
-		return username;
+		return this.username;
 	}
 	public String getAvatar() {
-		return avatar;
+		return this.avatar;
 	}
 	public String getTitle() {
-		return title;
+		return this.title;
 	}
 	public String getNamecolor() {
-		return namecolor;
+		return this.namecolor;
 	}
 	public String getEmail() {
-		return email;
+		return this.email;
 	}
 	public String getHomepage() {
-		return homepage;
+		return this.homepage;
 	}
 	public String getOccupation() {
-		return occupation;
+		return this.occupation;
 	}
 	public String getLocation() {
-		return location;
+		return this.location;
 	}
 	public String getHobbies() {
-		return hobbies;
+		return this.hobbies;
 	}
 	public String getMember_level() {
-		return member_level;
+		return this.member_level;
 	}
 	
-	public void setUser_id(String v) {
-		user_id = v;
+	public void setUser_id(String user_id) {
+		this.user_id = user_id;
 	}
-	public void setUsername(String v) {
-		username = v;
+	public void setUsername(String username) {
+		this.username = username;
 	}
-	public void setAvatar(String v) {
-		avatar = v;
+	public void setAvatar(String avatar) {
+		this.avatar = avatar;
 	}
 	public void setTitle(String title) {
 		this.title = title;

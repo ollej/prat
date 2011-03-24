@@ -17,6 +17,7 @@ public class DroidPrat extends ListActivity {
 	private ArrayAdapter<String> messageAdapter;
 	private int MAX_MESSAGES = 200;
 	private List<String> messageList;
+	private Timer t = new Timer("messageloading");
     private Handler updateHandler = new Handler();
     private Runnable updateRunner = new Runnable() {
 	    public void run() {
@@ -24,6 +25,7 @@ public class DroidPrat extends ListActivity {
 	    	messageAdapter.notifyDataSetChanged();
 	    }
     };
+    private TimerTask task = null;
 
 	/** Called when the activity is first created. */
     @Override
@@ -34,27 +36,41 @@ public class DroidPrat extends ListActivity {
         messageList = new ArrayList<String>();
     	messageAdapter = new ArrayAdapter<String>(this, R.layout.msg_row, messageList);
         setListAdapter(messageAdapter);
-        //fillData();
         ListView lv = getListView();
         lv.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         lv.setStackFromBottom(true);
-        updateRunner.run();
+    }
+
+    @Override
+    public void onResume() {
+    	super.onResume();
         setupTask();
     }
     
+    @Override
+    public void onPause() {
+    	super.onPause();
+        cancelTask();
+    }
+
     public void setupTask() {
-    	TimerTask task = new TimerTask() {
-    		public void run() {
-    			Log.d("TIMER", "Timer set off");
-    			loadMessages();
-    		}
-    	};
-    	Timer t = new Timer("messageloading");
-    	try {
-    		t.schedule(task, 50, 2500);
+		Log.d("TIMER", "Timer started.");
+		task = new TimerTask() {
+			public void run() {
+				Log.d("TIMER", "Timer set off");
+				loadMessages();
+			}
+		};
+		try {
+    		t.schedule(task, 0, 1000);
     	} catch(Exception e) {
     		e.printStackTrace();
     	}
+    }
+    
+    public void cancelTask() {
+		Log.d("TIMER", "Timer cancelled.");
+    	task.cancel();
     }
     
     /**
