@@ -1,0 +1,15 @@
+TODO:
+ * Design list row, with user and avatar
+ * Cancel TimerTask when suspending app.
+ X Implement login()
+ X Implement sendMessage()
+ * Add text box
+ * Add configuration view (URL, cookie prefix, username, password)
+ * /me
+ * highlight rows with matching username
+ * Implement getAvatar()
+ X Implement getUsers()
+ * Add extra view with user list.
+ X Implement deleteMessage()
+ * Implement delete message UI
+ 
