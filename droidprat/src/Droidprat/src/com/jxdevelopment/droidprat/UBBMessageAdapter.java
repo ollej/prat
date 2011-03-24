@@ -55,30 +55,37 @@ public class UBBMessageAdapter {
     	return userlist;
     }
     
-    public String[] getAllMessages() {
+    public List<Message> getAllMessages() {
     	return getMessages(0);
     }
 
-    public String[] getMessages(Integer start) {
+    public List<Message> getMessages(Integer start) {
     	String jsonString = loadMessages(start);
     	Log.d("UBBMESSAGE", "jsonString read:" + jsonString);
     	if (jsonString == null || jsonString.trim().equals("")) {
-    		return new String[0];
+    		return null;
     	}
     	List<Message> msglist = convertMessageJson(jsonString);
-    	// FIXME: Should return msglist
-    	String[] msgs = new String[msglist.size()];
-    	for (int i = 0; i < msglist.size(); i++) {
-    		msgs[i] = msglist.get(i).getBody();
+    	latestId = getHighestId(msglist);
+    	return msglist;		
+	}
+
+	/**
+	 * @param msglist
+	 */
+	public int getHighestId(List<Message> msglist) {
+		int highestId = 0;
+		for (int i = 0; i < msglist.size(); i++) {
     		Integer id = Integer.parseInt(msglist.get(i).getId());
-    		if (id > latestId) {
-    			latestId = id;
+    		if (id > highestId) {
+    			highestId = id;
     		}
     	}
-    	return msgs;		
+    	Log.d("UBBMESSAGE", "Highest id:" + highestId);
+		return highestId;
 	}
     
-    public String[] getMessages() {
+    public List<Message> getMessages() {
     	return getMessages(latestId);
     }
     

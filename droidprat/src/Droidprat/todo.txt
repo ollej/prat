@@ -1,13 +1,16 @@
 TODO:
- * Design list row, with user and avatar
- * Cancel TimerTask when suspending app.
+ X Design list row, with user and avatar
+ X Cancel TimerTask when suspending app.
  X Implement login()
  X Implement sendMessage()
  * Add text box
+ * Add username colors in theme. 
  * Add configuration view (URL, cookie prefix, username, password)
+ * Message class needs to convert body (for /me etc)
+ * Unescape html
  * /me
  * highlight rows with matching username
- * Implement getAvatar()
+ * Implement getAvatar() and insert it into list (keep cache of loaded images)
  X Implement getUsers()
  * Add extra view with user list.
  X Implement deleteMessage()
