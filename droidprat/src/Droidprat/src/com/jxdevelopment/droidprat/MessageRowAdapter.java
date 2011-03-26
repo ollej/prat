@@ -47,7 +47,10 @@ public class MessageRowAdapter extends BaseAdapter {
 		holder.body.setText(msg.getBody());
 		// FIXME: Need to download avatar image.
 		holder.avatar.setBackgroundResource(R.drawable.noavatar);
-
+		
+/*		Bitmap avatar = .getAvatar());
+	    holder.avatar.setImageBitmap(avatar);		
+*/
 		return convertView;
 	}
 

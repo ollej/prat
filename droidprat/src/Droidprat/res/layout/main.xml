@@ -4,14 +4,33 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
-	<ScrollView
-	    android:id="@+id/widget54"
-	    android:layout_width="wrap_content"
+<!--
+ 	<ScrollView
+	    android:id="@+id/svMessages"
+	    android:layout_width="fill_parent"
 	    android:layout_height="fill_parent"
-	    android:layout_weight="100"
+	    android:gravity="fill_vertical"
 	    >
-	    <ListView android:layout_height="wrap_content" android:id="@+id/listView1" android:layout_width="match_parent"></ListView>
+-->
+	    <ListView
+	    	android:id="@+id/lvMessages"
+	    	android:layout_width="fill_parent"
+	    	android:layout_height="fill_parent"
+	    	android:stackFromBottom="true"
+	    	android:smoothScrollbar="true"
+	    	android:fadeScrollbars="true"
+	    	android:layout_weight="100"
+	    	android:isScrollContainer="true"
+	    	></ListView>
+<!--  
 	</ScrollView>
-    <EditText android:text="@string/enter_msg" android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/editText1" android:layout_gravity="bottom" android:textSize="16sp"></EditText>
-   
+-->
+    <EditText
+    	android:id="@+id/etMessage"
+    	android:layout_width="match_parent"
+    	android:layout_height="wrap_content"
+    	android:layout_gravity="bottom"
+    	android:textSize="16sp"
+    	android:hint="@string/enter_msg"
+    	></EditText>   
 </LinearLayout>

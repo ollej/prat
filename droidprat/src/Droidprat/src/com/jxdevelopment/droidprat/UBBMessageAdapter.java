@@ -1,10 +1,15 @@
 package com.jxdevelopment.droidprat;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -126,18 +131,35 @@ public class UBBMessageAdapter {
 		return getUsers(idlist);
 	}
 	
+	public Bitmap getAvatar(String url) {
+		Bitmap avatar = http.getImage(url);
+		return avatar;
+	}
+	
 	// TODO: Create a generic buildURL method which can take a key/value pair list.
-	public Integer login(String username, String password) {
-		String url = URL.concat("?ubb=start_page");
-		url.concat("&Loginname=").concat(username);
-		url.concat("&Loginpass=").concat(password);
-		url.concat("&rememberme=1");
-		url.concat("&firstlogin=1");
-		url.concat("&buttlogin=Logga in");
-		String loginpage = http.getData(url);
-		Integer cookieUserId = Integer.parseInt(http.getCookie("myid"));
-		Log.d("UBBMESSAGE", "Logged in as user:" + cookieUserId.toString());
+	public String login(String username, String password) {
+		//String url = URL.concat("?ubb=start_page");
+		
+        // Add data to post
+        List<NameValuePair> data = new ArrayList<NameValuePair>(6);
+        data.add(new BasicNameValuePair("ubb", "start_page"));
+        data.add(new BasicNameValuePair("Loginname", username));
+        data.add(new BasicNameValuePair("Loginpass", password));
+        data.add(new BasicNameValuePair("rememberme", "1"));
+        data.add(new BasicNameValuePair("firstlogin", "1"));
+        data.add(new BasicNameValuePair("buttlogin", "Logga in"));
+        
+		String loginpage = http.postData(URL, data);
+		//Integer cookieUserId = Integer.parseInt(http.getCookie("myid"));
+		String cookieUserId = http.getCookie("myid");
+		if (cookieUserId != null) {
+			Log.d("UBBMESSAGE", "Logged in as user:" + cookieUserId.toString());
+		} else {
+			Log.d("UBBMESSAGE", "Didn't get a user cookie, not logged in.");
+			Log.d("UBBMESSAGE", loginpage);
+		}
 		return cookieUserId;
+		//return 0;
 	}
 	
 	public void logout() {
@@ -145,8 +167,12 @@ public class UBBMessageAdapter {
 	}
 	
 	public String sendMessage(String message) {
-    	String url = URL.concat("?ubb=shoutit&shout=").concat(message);
-    	String ret = http.postData(url);
+    	//String url = URL.concat("?ubb=shoutit&shout=").concat(message);
+        List<NameValuePair> data = new ArrayList<NameValuePair>(2);
+        data.add(new BasicNameValuePair("ubb", "shoutit"));
+        data.add(new BasicNameValuePair("shout", message));
+
+    	String ret = http.postData(URL, data);
     	return ret;
 	}
 	

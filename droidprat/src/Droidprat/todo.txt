@@ -3,16 +3,18 @@ TODO:
  X Cancel TimerTask when suspending app.
  X Implement login()
  X Implement sendMessage()
- * Add text box
- * Add username colors in theme. 
+ X Add text box
+ * Add username colors in theme.
  * Add configuration view (URL, cookie prefix, username, password)
  * Message class needs to convert body (for /me etc)
  * Unescape html
  * /me
  * highlight rows with matching username
- * Implement getAvatar() and insert it into list (keep cache of loaded images)
+ X Implement getAvatar()
+ * Insert avatars into list (keep cache of loaded images)
  X Implement getUsers()
  * Add extra view with user list.
  X Implement deleteMessage()
  * Implement delete message UI
- 
+ * Indicate whether there are new messages and/or mentions while in background.
+ * There seem to be utf8 problems

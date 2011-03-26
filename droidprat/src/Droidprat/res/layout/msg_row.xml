@@ -11,7 +11,8 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentBottom="false"
         android:layout_marginRight="6dip"
-        android:src="@drawable/icon" />
+        android:src="@drawable/icon"
+        />
     <TextView
         android:id="@+id/tvUser"
         android:layout_width="fill_parent"
@@ -22,7 +23,8 @@
         android:gravity="center_vertical"
         android:textStyle="normal|bold"
         android:textSize="12sp"
-        android:textColor="#333" />
+        android:textColor="#333"
+        />
     <TextView
         android:id="@+id/tvBody"
         android:layout_width="fill_parent"
@@ -34,5 +36,7 @@
         android:layout_below="@id/tvUser"
         android:singleLine="false"
         android:textSize="14sp"
-        android:textColor="#000" />
+        android:textColor="#000"
+        android:autoLink="all"
+        />
 </RelativeLayout>
