@@ -6,6 +6,7 @@ package com.jxdevelopment.droidprat;
 import java.util.List;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -53,13 +54,16 @@ public class MessageRowAdapter extends BaseAdapter {
 		// FIXME: Need to download avatar image.
 		//holder.avatar.setBackgroundResource(R.drawable.noavatar);
 		
+		int textColor = R.color.fgcolor_msg_body;
 		if (msg.isSlashMe) {
 			Log.d("MRADAPT", "Message is slashme, setting text color.");
-			holder.body.setTextColor(this.mCtx.getResources().getColor(R.color.fgcolor_slashme));
-		} else {
-			holder.body.setTextColor(this.mCtx.getResources().getColor(R.color.fgcolor_msg_body));
+			textColor = R.color.fgcolor_slashme;
 		}
-
+		holder.body.setTextColor(this.mCtx.getResources().getColor(textColor));
+		
+/*        Typeface tf = Typeface.createFromAsset(this.mCtx.getAssets(),"fonts/BPreplayExtended.otf");
+		holder.body.setTypeface(tf);
+*/
 		/*		Bitmap avatar = .getAvatar());
 	    holder.avatar.setImageBitmap(avatar);		
 		 */

@@ -18,6 +18,7 @@ import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
@@ -51,9 +52,9 @@ public class HTTPHelper {
 	}
 
 	public HttpClient createHttpClient() {
-		HttpClient hc = new DefaultHttpClient();
+		HttpClient httpclient = new DefaultHttpClient();
 		// FIXME: Setup cookie store
-		return hc;
+		return httpclient;
 	}
 
 	// FIXME: Remove.
@@ -116,13 +117,17 @@ public class HTTPHelper {
 		String str = "";
 		try {
 			Log.d("HTTPHELPER", "POST to URL: " + urlquery);
+			List<Cookie> cookies = getCookies();
 			HttpPost post = new HttpPost(urlquery);
 			if (data != null) {
 				post.setEntity(new UrlEncodedFormEntity(data));
 			}
 			HttpResponse rp = hc.execute(post, httpContext);
 			if (rp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+				Log.d("HTTPHELPER", "postData status OK");
 				str = EntityUtils.toString(rp.getEntity());
+			} else {
+				Log.d("HTTPHELPER", "postData error, status:" + rp.getStatusLine().getStatusCode());
 			}
 		} catch (ClientProtocolException e) {
 			Log.d("HTTPHELPER", "Error: ClientProtocolException " + e.getMessage());
@@ -137,6 +142,7 @@ public class HTTPHelper {
 	 */
 	public List<Cookie> getCookies() {
 		List<Cookie> cookies = cookieStore.getCookies();
+		Log.d("HTTPHELPER", "Cookies:");
 		for (int i = 0; i < cookies.size(); i++) {
 			Cookie c = cookies.get(i);
 			Log.d("HTTPHELPER", "Cookie: " + c.getName() + "=" + c.getValue());
@@ -163,6 +169,8 @@ public class HTTPHelper {
 	}
 
 	public Boolean setCookie(String name, String value) {
+		Cookie cookie = new BasicClientCookie(name, value);
+		cookieStore.addCookie(cookie);
 		// FIXME: Implement
 		return true;
 	}

@@ -10,7 +10,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -30,6 +29,7 @@ public class DroidPrat extends Activity {
 	private UBBMessageAdapter msgHelper;
 	private MessageRowAdapter messageAdapter;
 	private int MAX_MESSAGES = 35;
+	private SharedPreferences prefs;
 	private View mainView;
 	private ListView lv;
 	private EditText etMessage;
@@ -71,51 +71,63 @@ public class DroidPrat extends Activity {
 		setupMessageHandler();
 	}
 
+	@Override
+	public void onResume() {
+		super.onResume();
+		setupTask();
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+		cancelTask();
+	}
+
 	/**
 	 * 
 	 */
 	public void setupMessageHandler() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         // Set up a UBBMessageAdapter by default, could be others in the future.
 		msgHelper = new UBBMessageAdapter(this);
+	}
 
+	/**
+	 * 
+	 */
+	public String checkLogin() {
 		// FIXME: Only login if values are set in config, otherwise disable text box.
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		String username = prefs.getString("prefUsername", "");
 		String password = prefs.getString("prefPassword", "");
-        //String cookiePrefix = prefs.getString("prefCookiePrefix", "ubb7_");
         String URL = prefs.getString("prefBaseURL", "");
 
+        String userid = "";
 		if (username != "" && password != "" && URL != "") {
 			try {
-				msgHelper.login(username, password);
+				userid = msgHelper.login(username, password);
 			} catch (URLException e) {
 				Log.d("MESSAGE", "Can't login with no URL configured.");
 			}
 		} else {
 			// Notify that preferences needs to be configured.
-			// FIXME: login alert isn't working.
-			// FIXME: Should probably turn off message loading.
-			// FIXME: Once configuration has been done, system should try to login and start up message loading.
-			//showLoginAlert();
+			cancelTask();
+			showOKAlert(R.string.enter_prefs, R.string.not_logged_in);
 		}
+		return userid;
 	}
 
-	public void showLoginAlert() {
-		AlertDialog.Builder alt_bld = new AlertDialog.Builder(this);
-		alt_bld.setMessage(R.string.not_logged_in)
-		.setCancelable(false)
-		.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int id) {
-				dialog.cancel();
-			}
+	public void showOKAlert(int title, int message) {
+		AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+		alertDialog.setTitle(getString(title));
+		alertDialog.setMessage(getString(message));
+		alertDialog.setButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
+		   public void onClick(DialogInterface dialog, int which) {
+			   dialog.cancel();
+		   }
 		});
-		AlertDialog alert = alt_bld.create();
-		// Title for AlertDialog
-		alert.setTitle(R.string.enter_prefs);
-		// Icon for AlertDialog
-		alert.setIcon(R.drawable.icon);
-		alert.show();
+		alertDialog.setIcon(R.drawable.info);
+		alertDialog.show();
 	}
 
 	/**
@@ -126,10 +138,11 @@ public class DroidPrat extends Activity {
 		final LayoutInflater factory = getLayoutInflater();
 		mainView = factory.inflate(R.layout.main, null);
 		setContentView(mainView);
+		
 		lv = (ListView) mainView.findViewById(R.id.lvMessages);
 		lv.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
 		//lv.setStackFromBottom(true);
-
+		
 		// Setup a reference to edittext
 		etMessage = (EditText) mainView.findViewById(R.id.etMessage);
 		
@@ -179,36 +192,41 @@ public class DroidPrat extends Activity {
 
 	}
 
-	@Override
-	public void onResume() {
-		super.onResume();
-		setupTask();
-	}
-
-	@Override
-	public void onPause() {
-		super.onPause();
-		cancelTask();
-	}
-
 	public void setupTask() {
-		Log.d("TIMER", "Timer started.");
-		task = new TimerTask() {
-			public void run() {
-				Log.d("TIMER", "Timer set off");
-				loadMessages();
+		//msgHelper.readPrefs();
+		setupMessageHandler();
+		String userid = checkLogin();
+		
+		// Activate text box if user is logged in.
+		Log.d("TIMER", "User logged in: " + userid);
+		if (userid.length() > 0) {
+			etMessage.setEnabled(true);
+		}
+		
+		// Start message listener if base url is set.
+		String baseurl = prefs.getString("prefBaseURL", "");
+		if (baseurl.length() > 0) {
+			Log.d("TIMER", "Timer started - Starting to listen for new messages.");
+			task = new TimerTask() {
+				public void run() {
+					Log.d("TIMER", "Timer set off");
+					loadMessages();
+				}
+			};
+			try {
+				t.schedule(task, 0, 1000);
+			} catch(Exception e) {
+				e.printStackTrace();
 			}
-		};
-		try {
-			t.schedule(task, 0, 1000);
-		} catch(Exception e) {
-			e.printStackTrace();
 		}
 	}
 
 	public void cancelTask() {
 		Log.d("TIMER", "Timer cancelled.");
-		task.cancel();
+		if (task != null) {
+			task.cancel();
+		}
+		etMessage.setEnabled(false);
 	}
 
 	/**
@@ -220,6 +238,7 @@ public class DroidPrat extends Activity {
 			messages = msgHelper.getMessages();
 		} catch (URLException e) {
 			Log.d("MESSAGE", "Tried loading messages without a URL configured.");
+			cancelTask();
 		}
 		if (messages == null) {
 			return;

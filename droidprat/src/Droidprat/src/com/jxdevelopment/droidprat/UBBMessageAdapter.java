@@ -109,11 +109,11 @@ public class UBBMessageAdapter {
 	}
 	
 	public String getURL() throws URLException {
-		if (URL != "") {
+		if (URL.length() == 0) {
 			readPrefs();
-			if (URL == "") {
-				throw new URLException("No URL configured.");
-			}
+		}
+		if (URL.length() == 0) {
+			throw new URLException("No URL configured.");
 		}
 		return URL;
 	}
@@ -183,7 +183,7 @@ public class UBBMessageAdapter {
 			Log.d("UBBMESSAGE", "Logged in as user:" + cookieUserId.toString());
 		} else {
 			Log.d("UBBMESSAGE", "Didn't get a user cookie, not logged in.");
-			Log.d("UBBMESSAGE", loginpage);
+			//Log.d("UBBMESSAGE", loginpage);
 		}
 		return cookieUserId;
 		//return 0;
@@ -200,6 +200,7 @@ public class UBBMessageAdapter {
 		data.add(new BasicNameValuePair("shout", message));
 
 		String ret = http.postData(URL, data);
+		Log.d("UBBMESSAGE", "Post data returned: " + ret);
 		return ret;
 	}
 
