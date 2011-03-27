@@ -26,7 +26,7 @@ public class MessageRowAdapter extends BaseAdapter {
 		mInflater = LayoutInflater.from(context);
 		this.messages = messages;
 	}
-	
+
 	public View getView(int position, View convertView, ViewGroup parent) {
 		ViewHolder holder;
 		if (convertView == null) {
@@ -47,10 +47,10 @@ public class MessageRowAdapter extends BaseAdapter {
 		holder.body.setText(msg.getBody());
 		// FIXME: Need to download avatar image.
 		holder.avatar.setBackgroundResource(R.drawable.noavatar);
-		
-/*		Bitmap avatar = .getAvatar());
+
+		/*		Bitmap avatar = .getAvatar());
 	    holder.avatar.setImageBitmap(avatar);		
-*/
+		 */
 		return convertView;
 	}
 

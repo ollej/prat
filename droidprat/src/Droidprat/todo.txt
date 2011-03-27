@@ -18,3 +18,4 @@ TODO:
  * Implement delete message UI
  * Indicate whether there are new messages and/or mentions while in background.
  * There seem to be utf8 problems
+ * Add back button to prefs view.
