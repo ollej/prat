@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -131,7 +132,11 @@ public class DroidPrat extends Activity {
 
 		// Setup a reference to edittext
 		etMessage = (EditText) mainView.findViewById(R.id.etMessage);
-
+		
+/*		Typeface typeFace = Typeface.createFromAsset(assetmanager,"fontfile.ttf");
+		TextView view = (TextView) findById(R.id.mytext);
+		view.setTypeFace(typeFace);
+*/
 		// Setup button listeners
 		setupListeners();
 

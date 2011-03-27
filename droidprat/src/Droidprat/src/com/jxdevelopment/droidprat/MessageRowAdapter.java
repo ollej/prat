@@ -21,8 +21,10 @@ import android.widget.TextView;
 public class MessageRowAdapter extends BaseAdapter {
 	private LayoutInflater mInflater;
 	private List<Message> messages;
+	private Context mCtx;
 
 	public MessageRowAdapter(Context context, List<Message> messages) {
+		this.mCtx = context;
 		mInflater = LayoutInflater.from(context);
 		this.messages = messages;
 	}
@@ -42,11 +44,21 @@ public class MessageRowAdapter extends BaseAdapter {
 		}
 
 		Message msg = getItem(position);
-		Log.d("MRADAPT", "Username: " + msg.getUsername() + " Body: " + msg.getBody());
+		String msgbody = msg.getBody();
+		msgbody = msg.parseBody(msgbody);
+		
+		Log.d("MRADAPT", "Username: " + msg.getUsername() + " Body: " + msgbody);
 		holder.username.setText(msg.getUsername());
-		holder.body.setText(msg.getBody());
+		holder.body.setText(msgbody);
 		// FIXME: Need to download avatar image.
-		holder.avatar.setBackgroundResource(R.drawable.noavatar);
+		//holder.avatar.setBackgroundResource(R.drawable.noavatar);
+		
+		if (msg.isSlashMe) {
+			Log.d("MRADAPT", "Message is slashme, setting text color.");
+			holder.body.setTextColor(this.mCtx.getResources().getColor(R.color.fgcolor_slashme));
+		} else {
+			holder.body.setTextColor(this.mCtx.getResources().getColor(R.color.fgcolor_msg_body));
+		}
 
 		/*		Bitmap avatar = .getAvatar());
 	    holder.avatar.setImageBitmap(avatar);		

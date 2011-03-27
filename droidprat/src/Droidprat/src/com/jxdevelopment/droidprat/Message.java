@@ -1,5 +1,9 @@
 package com.jxdevelopment.droidprat;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+
+import android.util.Log;
+
 public class Message {
 	String id;
 	String user_id;
@@ -7,6 +11,7 @@ public class Message {
 	String body;
 	String time;
 	String avatar;
+	Boolean isSlashMe = false;
 	
 	public String getId() {
 		return this.id;
@@ -44,5 +49,20 @@ public class Message {
 	}
 	public void setAvatar(String avatar) {
 		this.avatar = avatar;
+	}
+	
+	public String parseBody(String body) {
+		Log.d("PARSEBODY", "Unescaping HTML: " + body);
+		body = StringEscapeUtils.unescapeHtml4(body);
+		Log.d("PARSEBODY", "After unescape: " + body);
+		
+		// Convert /me lines, should also be colored by MessageRowAdapter
+		if (body.startsWith("/me ")) {
+			Log.d("PARSEBODY", "Slashme message.");
+			this.isSlashMe = true;
+			body = body.substring(3);
+			body = "* ".concat(this.getUsername()).concat(body);
+		}
+		return body;
 	}
 }
