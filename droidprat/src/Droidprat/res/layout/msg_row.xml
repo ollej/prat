@@ -4,7 +4,7 @@
     android:layout_width="fill_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
     android:padding="6dip">
-    
+    <!-- 
     <ImageView
         android:id="@+id/ivAvatar"
         android:layout_width="wrap_content"
@@ -12,9 +12,23 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentBottom="false"
         android:layout_marginRight="6dip"
-        android:src="@drawable/noavatar"
         android:scaleType="center"
+        android:src="drawable/noavatar"
         />
+        -->
+	<com.jxdevelopment.droidprat.LoaderImageView
+        android:id="@+id/ivAvatar"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="false"
+        android:layout_marginRight="6dip"
+        android:scaleType="center"
+        android:maxWidth="40dp"
+        android:maxHeight="40dp"
+        android:adjustViewBounds="true"
+		image="@drawable/noavatar"
+		/>
     <TextView
         android:id="@+id/tvUser"
         android:layout_width="fill_parent"

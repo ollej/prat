@@ -12,6 +12,7 @@
     	android:layout_gravity="top"
     	android:background="@color/bgcolor_title"
 	   >
+	   
 <!--
  		<com.jxdevelopment.droidprat.TextViewFont
 	        dp:ttf_name="DroidSansPro.ttf"

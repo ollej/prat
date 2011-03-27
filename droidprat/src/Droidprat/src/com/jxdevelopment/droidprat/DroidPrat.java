@@ -10,8 +10,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.MatrixCursor;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -27,7 +29,10 @@ import android.widget.TextView;
 
 public class DroidPrat extends Activity {
 	private UBBMessageAdapter msgHelper;
-	private MessageRowAdapter messageAdapter;
+	private MessageCursorAdapter messageAdapter;
+	private MatrixCursor msgCursor;
+    private String[] msgCols = new String[] { "_id", "body", "username", "avatar", "bodycolor" };
+    private int[] to = new int[] { 0, R.id.tvBody, R.id.tvUser, R.id.ivAvatar, 0 };
 	private int MAX_MESSAGES = 35;
 	private SharedPreferences prefs;
 	private View mainView;
@@ -244,15 +249,36 @@ public class DroidPrat extends Activity {
 			return;
 		}
 		Log.d("MESSAGE", "Adding messages: " + messages.size());
-		if (messageList == null) {
-			messageList = messages;
-			messageAdapter = new MessageRowAdapter(this, messageList);
+	    Looper.prepare();
+		if (msgCursor == null) {
+			//messageList = messages;
+			//messageAdapter = new MessageCursorAdapter(this, messageList);
+			
+		    msgCursor = new MatrixCursor(msgCols);
+		    startManagingCursor(msgCursor);
+
+		    addMessages(messages);
+		    messageAdapter = new MessageCursorAdapter(
+		                this, R.layout.msg_row, msgCursor, msgCols, to);
+			
 			updateHandler.post(startRunner);
 		} else if (messages.size() > 0) {
-			messageList.addAll(messages);
+			//messageList.addAll(messages);
+			addMessages(messages);
 		}
-		pruneMessages(messageList, MAX_MESSAGES);
-		updateHandler.post(updateRunner);
+		//pruneMessages(messageList, MAX_MESSAGES);
+		//updateHandler.post(updateRunner);
+	    Looper.loop();
+	}
+
+	/**
+	 * @param messages
+	 */
+	public void addMessages(List<Message> messages) {
+		for (int i = 0; i < messages.size(); i++) {
+			Message msg = messages.get(i);
+			msgCursor.addRow(new Object[] { msg.getId(), msg.getBody(), msg.getUsername(), msg.getAvatar(), msg.bodycolor });
+		}
 	}
 
 	/**

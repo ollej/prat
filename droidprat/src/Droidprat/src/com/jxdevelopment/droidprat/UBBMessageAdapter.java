@@ -25,6 +25,7 @@ public class UBBMessageAdapter {
 	// Configuration options:
 	private String URL = "";
 	private String cookiePrefix = "";
+	private List<Bitmap> avatars = null;
 
 	/**
 	 * Constructor - takes the context to allow the database to be
@@ -85,8 +86,25 @@ public class UBBMessageAdapter {
 			return null;
 		}
 		List<Message> msglist = convertMessageJson(jsonString);
+		//updateAvatarList(msglist);
+		updateMessageList(msglist);
 		latestId = getHighestId(msglist);
 		return msglist;		
+	}
+	
+	public void updateAvatarList(List<Message> msglist) {
+		for (int i = 0; i < msglist.size(); i++) {
+			// TODO: check if image is already cached
+			// if not, download
+			// add image to cache and message.
+		}		
+	}
+
+	public void updateMessageList(List<Message> msglist) {
+		for (int i = 0; i < msglist.size(); i++) {
+			Message msg = msglist.get(i);
+			msg.parseBody(msg.getBody());
+		}		
 	}
 
 	/**

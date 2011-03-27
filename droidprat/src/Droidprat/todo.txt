@@ -5,9 +5,9 @@ TODO:
  X Implement sendMessage()
  X Add text box
  * Add username colors in theme.
- * Add configuration view (URL, cookie prefix, username, password)
- * Message class needs to convert body (for /me etc)
- * Unescape html
+ X Add configuration view (URL, cookie prefix, username, password)
+ X Message class needs to convert body (for /me etc)
+ X Unescape html
  * /me
  * highlight rows with matching username
  X Implement getAvatar()

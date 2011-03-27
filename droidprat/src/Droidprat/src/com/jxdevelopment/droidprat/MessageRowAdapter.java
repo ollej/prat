@@ -6,7 +6,6 @@ package com.jxdevelopment.droidprat;
 import java.util.List;
 
 import android.content.Context;
-import android.graphics.Typeface;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,7 +36,7 @@ public class MessageRowAdapter extends BaseAdapter {
 			holder = new ViewHolder();
 			holder.username = (TextView) convertView.findViewById(R.id.tvUser);
 			holder.body = (TextView) convertView.findViewById(R.id.tvBody);
-			holder.avatar = (ImageView) convertView.findViewById(R.id.ivAvatar);
+			holder.avatar = (LoaderImageView) convertView.findViewById(R.id.ivAvatar);
 
 			convertView.setTag(holder);
 		} else {
@@ -54,6 +53,12 @@ public class MessageRowAdapter extends BaseAdapter {
 		// FIXME: Need to download avatar image.
 		//holder.avatar.setBackgroundResource(R.drawable.noavatar);
 		
+		// Set avatar image
+		if (msg.getAvatar() != "") {
+			holder.avatar.setImageDrawable(msg.getAvatar());
+		}
+		
+		// Set body text color
 		int textColor = R.color.fgcolor_msg_body;
 		if (msg.isSlashMe) {
 			Log.d("MRADAPT", "Message is slashme, setting text color.");
@@ -73,7 +78,7 @@ public class MessageRowAdapter extends BaseAdapter {
 	static class ViewHolder {
 		TextView username;
 		TextView body;
-		ImageView avatar;
+		LoaderImageView avatar;
 	}
 
 	public int getCount() {

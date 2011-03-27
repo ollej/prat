@@ -12,6 +12,7 @@ public class Message {
 	String time;
 	String avatar;
 	Boolean isSlashMe = false;
+	int bodycolor = R.color.fgcolor_msg_body;
 	
 	public String getId() {
 		return this.id;
@@ -59,6 +60,7 @@ public class Message {
 		// Convert /me lines, should also be colored by MessageRowAdapter
 		if (body.startsWith("/me ")) {
 			Log.d("PARSEBODY", "Slashme message.");
+			this.bodycolor = R.color.fgcolor_slashme;
 			this.isSlashMe = true;
 			body = body.substring(3);
 			body = "* ".concat(this.getUsername()).concat(body);
