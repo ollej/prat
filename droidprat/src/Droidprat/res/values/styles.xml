@@ -6,6 +6,8 @@
 	<color name="fgcolor_slashme">#FF0000</color>
 	<color name="fgcolor_msg_body">#000</color>
 	<color name="fgcolor_msg_username">#333</color>
+	<color name="bgcolor_row_highlight">#EEC</color>
+	<color name="bgcolor_row">#ffffff</color>
 	<style name="PratTheme" parent="android:Theme.Light">
 	    <item name="android:windowBackground">@color/custom_theme_color</item>
 	    <item name="android:colorBackground">@color/custom_theme_color</item>

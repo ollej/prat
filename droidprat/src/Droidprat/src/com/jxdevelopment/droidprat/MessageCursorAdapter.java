@@ -1,7 +1,12 @@
 package com.jxdevelopment.droidprat;
 
+import java.util.regex.Pattern;
+
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,9 +15,17 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 public class MessageCursorAdapter extends SimpleCursorAdapter {
+	private SharedPreferences prefs;
+	private Pattern reUsername;
+
 	public MessageCursorAdapter(Context context, int layout, Cursor c,
 			String[] from, int[] to) {
 		super(context, layout, c, from, to);
+		Log.d("MSGCURSORADAPT", "Initializing MessageCursorAdapter and reading preferences.");
+        prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        
+        String username = prefs.getString("prefUsername", "");
+        reUsername = Pattern.compile(Pattern.quote(username), Pattern.CASE_INSENSITIVE);
 	}
 
 	@Override
@@ -26,6 +39,7 @@ public class MessageCursorAdapter extends SimpleCursorAdapter {
 		String msg_avatar = cursor.getString(cursor.getColumnIndex("avatar"));
 		int msg_bodycolor = cursor.getInt(cursor.getColumnIndex("bodycolor"));
 
+		// Set values.
 		Log.d("MRADAPT", "Username: " + msg_username + " Body: " + msg_body);
 		holder.username.setText(msg_username);
 		holder.body.setText(msg_body);
@@ -37,6 +51,13 @@ public class MessageCursorAdapter extends SimpleCursorAdapter {
 
 		// Set body text color
 		holder.body.setTextColor(context.getResources().getColor(msg_bodycolor));
+		
+		// Highlight rows with users name in them.
+		if (reUsername.matcher(msg_body).find() == true) {
+			holder.row.setBackgroundResource(R.color.bgcolor_row_highlight);
+		} else {
+			holder.row.setBackgroundResource(R.color.bgcolor_row);
+		}
 
 	}
 
@@ -49,6 +70,7 @@ public class MessageCursorAdapter extends SimpleCursorAdapter {
 		ViewHolder holder;
 		v = inflater.inflate(R.layout.msg_row, null);
 		holder = new ViewHolder();
+		holder.row = (View) v.findViewById(R.id.rlMessageRow);
 		holder.username = (TextView) v.findViewById(R.id.tvUser);
 		holder.body = (TextView) v.findViewById(R.id.tvBody);
 		holder.avatar = (LoaderImageView) v.findViewById(R.id.ivAvatar);
@@ -62,6 +84,7 @@ public class MessageCursorAdapter extends SimpleCursorAdapter {
 		TextView username;
 		TextView body;
 		LoaderImageView avatar;
+		View row;
 	}
 
 }

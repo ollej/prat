@@ -38,7 +38,6 @@ public class DroidPrat extends Activity {
 	private View mainView;
 	private ListView lv;
 	private EditText etMessage;
-	private List<Message> messageList;
 	private Timer t = new Timer("messageloading");
 	private TimerTask task = null;
 	private Handler updateHandler = new Handler();
@@ -101,7 +100,6 @@ public class DroidPrat extends Activity {
 	 * 
 	 */
 	public String checkLogin() {
-		// FIXME: Only login if values are set in config, otherwise disable text box.
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		String username = prefs.getString("prefUsername", "");
 		String password = prefs.getString("prefPassword", "");
