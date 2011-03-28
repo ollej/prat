@@ -39,7 +39,6 @@ public class DroidPrat extends Activity {
 	private ListView lv;
 	private EditText etMessage;
 	private List<Message> messageList;
-	private Handler handler;
 	private Timer t = new Timer("messageloading");
 	private TimerTask task = null;
 	private Handler updateHandler = new Handler();
@@ -71,7 +70,7 @@ public class DroidPrat extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 		super.onCreate(savedInstanceState);
-		handler = new Handler();
+
 		setupLayout();
 
 		setupMessageHandler();
@@ -147,15 +146,10 @@ public class DroidPrat extends Activity {
 		
 		lv = (ListView) mainView.findViewById(R.id.lvMessages);
 		lv.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
-		//lv.setStackFromBottom(true);
 		
 		// Setup a reference to edittext
 		etMessage = (EditText) mainView.findViewById(R.id.etMessage);
 		
-/*		Typeface typeFace = Typeface.createFromAsset(assetmanager,"fontfile.ttf");
-		TextView view = (TextView) findById(R.id.mytext);
-		view.setTypeFace(typeFace);
-*/
 		// Setup button listeners
 		setupListeners();
 
@@ -199,7 +193,6 @@ public class DroidPrat extends Activity {
 	}
 
 	public void setupTask() {
-		//msgHelper.readPrefs();
 		setupMessageHandler();
 		
 		// Activate text box if user is logged in.
@@ -250,13 +243,9 @@ public class DroidPrat extends Activity {
 	 */
 	public void setupMessageCursor() {
 		if (msgCursor == null) {
-			//messageList = messages;
-			//messageAdapter = new MessageCursorAdapter(this, messageList);
-			
 		    msgCursor = new MatrixCursor(msgCols);
 		    startManagingCursor(msgCursor);
 
-		    //addMessages(messages);
 		    messageAdapter = new MessageCursorAdapter(
 		                this, R.layout.msg_row, msgCursor, msgCols, to);
 			
@@ -279,15 +268,11 @@ public class DroidPrat extends Activity {
 			return;
 		}
 		Log.d("MESSAGE", "Adding messages: " + messages.size());
-	    //Looper.prepare();
-		//} else if (messages.size() > 0) {
 		if (messages.size() > 0) {
-			//messageList.addAll(messages);
 			addMessages(messages);
 		}
 		//pruneMessages(messageList, MAX_MESSAGES);
 		updateHandler.post(updateRunner);
-	    //Looper.loop();
 	}
 
 	/**

@@ -55,7 +55,6 @@ public class Message {
 	public String parseBody(String body) {
 		Log.d("PARSEBODY", "Unescaping HTML: " + body);
 		body = StringEscapeUtils.unescapeHtml4(body);
-		Log.d("PARSEBODY", "After unescape: " + body);
 		
 		// Convert /me lines, should also be colored by MessageRowAdapter
 		if (body.startsWith("/me ")) {
