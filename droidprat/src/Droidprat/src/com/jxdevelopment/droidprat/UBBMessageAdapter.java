@@ -103,7 +103,7 @@ public class UBBMessageAdapter {
 	public void updateMessageList(List<Message> msglist) {
 		for (int i = 0; i < msglist.size(); i++) {
 			Message msg = msglist.get(i);
-			msg.parseBody(msg.getBody());
+			msg.setBody(msg.parseBody(msg.getBody()));
 		}		
 	}
 

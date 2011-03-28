@@ -39,6 +39,7 @@ public class DroidPrat extends Activity {
 	private ListView lv;
 	private EditText etMessage;
 	private List<Message> messageList;
+	private Handler handler;
 	private Timer t = new Timer("messageloading");
 	private TimerTask task = null;
 	private Handler updateHandler = new Handler();
@@ -70,7 +71,7 @@ public class DroidPrat extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 		super.onCreate(savedInstanceState);
-
+		handler = new Handler();
 		setupLayout();
 
 		setupMessageHandler();
@@ -200,15 +201,33 @@ public class DroidPrat extends Activity {
 	public void setupTask() {
 		//msgHelper.readPrefs();
 		setupMessageHandler();
-		String userid = checkLogin();
 		
 		// Activate text box if user is logged in.
+		String userid = checkLogin();
 		Log.d("TIMER", "User logged in: " + userid);
 		if (userid.length() > 0) {
 			etMessage.setEnabled(true);
 		}
 		
+		// Setup the message cursor object.
+		setupMessageCursor();
+
 		// Start message listener if base url is set.
+		startMessageListener();
+	}
+
+	public void cancelTask() {
+		Log.d("TIMER", "Timer cancelled.");
+		if (task != null) {
+			task.cancel();
+		}
+		etMessage.setEnabled(false);
+	}
+
+	/**
+	 * 
+	 */
+	public void startMessageListener() {
 		String baseurl = prefs.getString("prefBaseURL", "");
 		if (baseurl.length() > 0) {
 			Log.d("TIMER", "Timer started - Starting to listen for new messages.");
@@ -226,12 +245,23 @@ public class DroidPrat extends Activity {
 		}
 	}
 
-	public void cancelTask() {
-		Log.d("TIMER", "Timer cancelled.");
-		if (task != null) {
-			task.cancel();
+	/**
+	 * 
+	 */
+	public void setupMessageCursor() {
+		if (msgCursor == null) {
+			//messageList = messages;
+			//messageAdapter = new MessageCursorAdapter(this, messageList);
+			
+		    msgCursor = new MatrixCursor(msgCols);
+		    startManagingCursor(msgCursor);
+
+		    //addMessages(messages);
+		    messageAdapter = new MessageCursorAdapter(
+		                this, R.layout.msg_row, msgCursor, msgCols, to);
+			
+			updateHandler.post(startRunner);
 		}
-		etMessage.setEnabled(false);
 	}
 
 	/**
@@ -249,26 +279,15 @@ public class DroidPrat extends Activity {
 			return;
 		}
 		Log.d("MESSAGE", "Adding messages: " + messages.size());
-	    Looper.prepare();
-		if (msgCursor == null) {
-			//messageList = messages;
-			//messageAdapter = new MessageCursorAdapter(this, messageList);
-			
-		    msgCursor = new MatrixCursor(msgCols);
-		    startManagingCursor(msgCursor);
-
-		    addMessages(messages);
-		    messageAdapter = new MessageCursorAdapter(
-		                this, R.layout.msg_row, msgCursor, msgCols, to);
-			
-			updateHandler.post(startRunner);
-		} else if (messages.size() > 0) {
+	    //Looper.prepare();
+		//} else if (messages.size() > 0) {
+		if (messages.size() > 0) {
 			//messageList.addAll(messages);
 			addMessages(messages);
 		}
 		//pruneMessages(messageList, MAX_MESSAGES);
-		//updateHandler.post(updateRunner);
-	    Looper.loop();
+		updateHandler.post(updateRunner);
+	    //Looper.loop();
 	}
 
 	/**
