@@ -5,7 +5,6 @@ import java.util.regex.Pattern;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,13 +13,17 @@ import android.view.ViewGroup;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
+import com.github.droidfu.widgets.WebImageView;
+
 public class MessageCursorAdapter extends SimpleCursorAdapter {
 	private SharedPreferences prefs;
 	private Pattern reUsername;
+	private Context mContext;
 
 	public MessageCursorAdapter(Context context, int layout, Cursor c,
 			String[] from, int[] to) {
 		super(context, layout, c, from, to);
+		mContext = context;
 		Log.d("MSGCURSORADAPT", "Initializing MessageCursorAdapter and reading preferences.");
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
         
@@ -46,7 +49,12 @@ public class MessageCursorAdapter extends SimpleCursorAdapter {
 
 		// Set avatar image
 		if (msg_avatar != "") {
-			holder.avatar.setImageDrawable(msg_avatar);
+			//holder.avatar.setImageDrawable(msg_avatar);
+			Log.d("MRADAPT", "Setting image URL: " + msg_avatar);
+			holder.avatar.setImageUrl(msg_avatar);
+			holder.avatar.loadImage();
+		} else {
+			holder.avatar.setForeground(mContext.getResources().getDrawable(R.drawable.noavatar));
 		}
 
 		// Set body text color
@@ -73,7 +81,7 @@ public class MessageCursorAdapter extends SimpleCursorAdapter {
 		holder.row = (View) v.findViewById(R.id.rlMessageRow);
 		holder.username = (TextView) v.findViewById(R.id.tvUser);
 		holder.body = (TextView) v.findViewById(R.id.tvBody);
-		holder.avatar = (LoaderImageView) v.findViewById(R.id.ivAvatar);
+		holder.avatar = (WebImageView) v.findViewById(R.id.ivAvatar);
 		v.setTag(holder);
 
 		bindView(v, context, cursor);
@@ -83,7 +91,7 @@ public class MessageCursorAdapter extends SimpleCursorAdapter {
 	static class ViewHolder {
 		TextView username;
 		TextView body;
-		LoaderImageView avatar;
+		WebImageView avatar;
 		View row;
 	}
 

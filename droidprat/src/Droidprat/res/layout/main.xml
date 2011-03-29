@@ -61,7 +61,7 @@
     	android:fadeScrollbars="true"
     	android:layout_weight="100"
     	android:isScrollContainer="true"
-    	></ListView>
+    	/>
     <EditText
     	android:id="@+id/etMessage"
     	android:layout_width="match_parent"
@@ -69,5 +69,7 @@
     	android:layout_gravity="bottom"
     	android:textSize="16sp"
     	android:hint="@string/enter_msg"
-    	android:imeOptions="actionSend" android:singleLine="true"></EditText>   
+    	android:imeOptions="actionSend"
+    	android:singleLine="true"
+    	/>   
 </LinearLayout>

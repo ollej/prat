@@ -2,8 +2,12 @@ package com.jxdevelopment.droidprat;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Handler.Callback;
@@ -72,10 +76,6 @@ public class LoaderImageView extends LinearLayout {
 		mImage = new ImageView(mContext);
 		mImage.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 
-/*		mSpinner = new ProgressBar(mContext);
-		mSpinner.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-		mSpinner.setIndeterminate(true);
-*/
 		mSpinner = new ImageView(mContext);
 		mSpinner.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 		mSpinner.setImageResource(R.drawable.noavatar);
@@ -83,17 +83,18 @@ public class LoaderImageView extends LinearLayout {
 		addView(mSpinner);
 		addView(mImage);
 
-		if (imageUrl != null){
+		if (imageUrl != null) {
 			setImageDrawable(imageUrl);
 		}
 	}
-
+	
 	/**
 	 * Set's the view's drawable, this uses the internet to retrieve the image
 	 * don't forget to add the correct permissions to your manifest
 	 * @param imageUrl the url of the image you wish to load
 	 */
 	public void setImageDrawable(final String imageUrl) {
+		//mDrawable = getApplicationContext().imageCache.get(imageUrl);
 		mDrawable = null;
 		mSpinner.setVisibility(View.VISIBLE);
 		mImage.setVisibility(View.GONE);
@@ -139,8 +140,20 @@ public class LoaderImageView extends LinearLayout {
 	 * @throws IOException
 	 * @throws MalformedURLException
 	 */
-	private static Drawable getDrawableFromUrl(final String url) throws IOException, MalformedURLException {
-		return Drawable.createFromStream(((java.io.InputStream)new java.net.URL(url).getContent()), "name");
+	private static Drawable getDrawableFromUrl(final String strUrl) throws IOException, MalformedURLException {
+		URL url = new URL(strUrl);
+		URLConnection connection = url.openConnection();
+		connection.setUseCaches(true);
+		Object response = connection.getContent();
+		if (response instanceof Bitmap) {
+			Bitmap bitmap = (Bitmap) response;
+			BitmapDrawable drawable = new BitmapDrawable(bitmap);
+			return drawable;
+		}
+		Log.d("LOADERIMAGEVIEW", "Didn't receive a bitmap: ");
+		Log.d("LOADERIMAGEVIEW", response.toString());
+		return null;
+		//return Drawable.createFromStream(((java.io.InputStream)new java.net.URL(url).getContent()), "name");
 	}
 
 }
