@@ -29,7 +29,7 @@
         android:maxWidth="40dp"
         android:maxHeight="40dp"
         android:adjustViewBounds="true"
-		image="@drawable/noavatar"
+		image=""
 		/>
     <TextView
         android:id="@+id/tvUser"

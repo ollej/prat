@@ -15,4 +15,11 @@
     <string name="not_logged_in">You have not entered all required preferences.</string>
     <string name="enter_prefs">Enter Preferences</string>
     <string name="ok">OK</string>
+    <string name="about_title">About Droidprat</string>
+    <string name="about_text">Droidprat is a chat app for Android which allows users to chat in the shoutbox of UBB.threads forums.
+&lt;br /&gt;&lt;br /&gt;
+Developed by &lt;b&gt;Olle Johansson&lt;/b&gt;.
+&lt;br /&gt;&lt;br /&gt;
+More information available at http://github.com/ollej/prat
+    </string>
 </resources>

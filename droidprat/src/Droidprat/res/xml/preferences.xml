@@ -13,6 +13,7 @@
    android:title="@string/Password"
    android:summary="@string/PasswordSummary"
    android:defaultValue=""
+   android:password="true"
    />
   <EditTextPreference
    android:key="prefBaseURL"

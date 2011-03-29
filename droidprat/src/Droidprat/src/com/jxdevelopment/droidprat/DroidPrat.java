@@ -6,6 +6,7 @@ import java.util.TimerTask;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -13,15 +14,17 @@ import android.content.SharedPreferences;
 import android.database.MatrixCursor;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.text.Spanned;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -57,9 +60,14 @@ public class DroidPrat extends Activity {
 		public void run() {
 			Log.d("RUNNER", "Sending message.");
 			String msg = etMessage.getText().toString();
-			etMessage.setText(R.string.enter_msg);
-			hideVirtualKeyboard();
-			msgHelper.sendMessage(msg);
+			
+			if (msg.compareTo(getResources().getString(R.string.enter_msg)) != 0) {
+				etMessage.setText(R.string.enter_msg);
+				hideVirtualKeyboard();
+				msgHelper.sendMessage(msg);
+			} else {
+				Log.d("DROIDPRAT", "Tried sending default message hint.");
+			}
 		}
 
 	};
@@ -132,6 +140,31 @@ public class DroidPrat extends Activity {
 		alertDialog.setIcon(R.drawable.info);
 		alertDialog.show();
 	}
+	
+	public void showAboutDialog() {
+        // Set up dialog.
+        final Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.about);
+        dialog.setTitle(R.string.about_title);
+        dialog.setCancelable(true);
+        
+        // Set about text using html.
+        String aboutText = getResources().getString(R.string.about_text);
+        Spanned textSpan = android.text.Html.fromHtml(aboutText);
+        TextView text = (TextView) dialog.findViewById(R.id.tvAboutText);
+        text.setText(textSpan);
+
+        // Set up button.
+        Button button = (Button) dialog.findViewById(R.id.btnAboutOk);
+        button.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                //dismissDialog();
+            	dialog.dismiss();
+            }
+        });
+        
+        dialog.show();
+	}
 
 	/**
 	 * 
@@ -167,7 +200,7 @@ public class DroidPrat extends Activity {
 	 */
 	public void setupListeners() {
 		// Send message listener on text box
-		etMessage.setImeOptions(EditorInfo.IME_ACTION_SEND);
+		//etMessage.setImeOptions(EditorInfo.IME_ACTION_SEND);
 		etMessage.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 				if (actionId == EditorInfo.IME_ACTION_SEND) {
@@ -187,6 +220,14 @@ public class DroidPrat extends Activity {
 			}
 
 		});
+		
+		// Info/About button
+        ImageView infoButton = (ImageView) findViewById(R.id.infoButton);
+        infoButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {		
+            	showAboutDialog();
+            }
+        });
 
 	}
 

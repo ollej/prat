@@ -4,12 +4,12 @@ TODO:
  X Implement login()
  X Implement sendMessage()
  X Add text box
- * Add username colors in theme.
+ * Add username colors in theme, or not, just read them from user.
  X Add configuration view (URL, cookie prefix, username, password)
  X Message class needs to convert body (for /me etc)
  X Unescape html
- * /me
- * highlight rows with matching username
+ X /me
+ X highlight rows with matching username
  X Implement getAvatar()
  * Insert avatars into list (keep cache of loaded images)
  X Implement getUsers()
@@ -19,3 +19,6 @@ TODO:
  * Indicate whether there are new messages and/or mentions while in background.
  * There seem to be utf8 problems
  * Add back button to prefs view.
+ * Create info icon in top left corner which opens up an about screen.
+ * Add button for some halibot commands.
+ 
