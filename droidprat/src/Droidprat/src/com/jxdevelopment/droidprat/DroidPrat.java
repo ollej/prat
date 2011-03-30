@@ -206,7 +206,7 @@ public class DroidPrat extends Activity {
 		//etMessage.setImeOptions(EditorInfo.IME_ACTION_SEND);
 		etMessage.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-				if (actionId == EditorInfo.IME_ACTION_SEND) {
+				if (actionId == EditorInfo.IME_ACTION_SEND || actionId == EditorInfo.IME_NULL) {
 					updateHandler.post(sendmsgRunner);
 					return true;
 				}

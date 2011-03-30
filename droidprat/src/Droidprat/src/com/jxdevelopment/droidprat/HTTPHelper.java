@@ -117,10 +117,10 @@ public class HTTPHelper {
 		String str = "";
 		try {
 			Log.d("HTTPHELPER", "POST to URL: " + urlquery);
-			List<Cookie> cookies = getCookies();
+			List<Cookie> cookies = getCookies(); // why? possibly to print list of cookies before post.
 			HttpPost post = new HttpPost(urlquery);
 			if (data != null) {
-				post.setEntity(new UrlEncodedFormEntity(data));
+				post.setEntity(new UrlEncodedFormEntity(data, "UTF-8"));
 			}
 			HttpResponse rp = hc.execute(post, httpContext);
 			if (rp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {

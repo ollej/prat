@@ -43,6 +43,9 @@ public class Message {
 		this.username = username;
 	}
 	public void setBody(String body) {
+		if (body == null) {
+			body = "";
+		}
 		this.body = body;
 	}
 	public void setTime(String time) {
@@ -54,6 +57,10 @@ public class Message {
 	
 	public String parseBody(String body) {
 		Log.d("PARSEBODY", "Unescaping HTML: " + body);
+		if (body == null) {
+			body = "";
+		}
+		
 		body = StringEscapeUtils.unescapeHtml4(body);
 		
 		// Convert /me lines, should also be colored by MessageRowAdapter

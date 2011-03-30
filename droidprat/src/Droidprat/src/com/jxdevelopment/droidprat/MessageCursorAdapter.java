@@ -48,13 +48,17 @@ public class MessageCursorAdapter extends SimpleCursorAdapter {
 		holder.body.setText(msg_body);
 
 		// Set avatar image
-		if (msg_avatar != "") {
-			//holder.avatar.setImageDrawable(msg_avatar);
+		holder.avatar.reset();
+		holder.avatar.setNoImageDrawable(R.drawable.noavatar);
+		if (msg_avatar == "" || msg_avatar.equals("http://")) {
+			//Log.d("MRADAPT", "Clearing image url and setting noavatar as foreground.");
+			//holder.avatar.setImageUrl("");
+			//holder.avatar.reset();
+			//holder.avatar.setBackgroundDrawable(context.getResources().getDrawable(R.drawable.noavatar));
+		} else {
 			Log.d("MRADAPT", "Setting image URL: " + msg_avatar);
 			holder.avatar.setImageUrl(msg_avatar);
 			holder.avatar.loadImage();
-		} else {
-			holder.avatar.setForeground(mContext.getResources().getDrawable(R.drawable.noavatar));
 		}
 
 		// Set body text color

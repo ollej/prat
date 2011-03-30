@@ -46,7 +46,6 @@
         android:maxHeight="40dp"
         android:adjustViewBounds="true"
         droidfu:autoLoad="true"
-        droidfu:progressDrawable="@drawable/noavatar"
 		/>
     <TextView
         android:id="@+id/tvUser"
