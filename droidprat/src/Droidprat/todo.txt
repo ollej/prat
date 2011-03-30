@@ -11,7 +11,7 @@ TODO:
  X /me
  X highlight rows with matching username
  X Implement getAvatar()
- * Insert avatars into list (keep cache of loaded images)
+ X Insert avatars into list (keep cache of loaded images)
  X Implement getUsers()
  * Add extra view with user list.
  X Implement deleteMessage()
@@ -19,6 +19,6 @@ TODO:
  * Indicate whether there are new messages and/or mentions while in background.
  * There seem to be utf8 problems
  * Add back button to prefs view.
- * Create info icon in top left corner which opens up an about screen.
+ X Create info icon in top left corner which opens up an about screen.
  * Add button for some halibot commands.
  
