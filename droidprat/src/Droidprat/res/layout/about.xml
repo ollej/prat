@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical"
+	android:layout_width="250dp"
+	android:layout_height="wrap_content"
+	android:layout_gravity="center"
+	>
+ 
+	<ImageView
+		android:id="@+id/ivAboutLogo"
+	 	android:layout_width="80dp"
+	 	android:layout_height="80dp"
+	 	android:layout_centerHorizontal="true"
+		android:layout_gravity="center"
+	 	android:src="@drawable/icon"
+	 	/>
+ 
+	<ScrollView
+		android:id="@+id/svAboutScroll"
+		android:layout_width="230dp"
+		android:layout_height="200dp"
+		android:layout_gravity="center"
+		>
+	 <!--  @string/about_text -->
+		<TextView 
+			android:text=""
+			android:id="@+id/tvAboutText"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:autoLink="all"
+			/>
+	 
+	</ScrollView>
+	 
+	<Button
+		android:id="@+id/btnAboutOk"
+	 	android:layout_width="wrap_content"
+	 	android:layout_height="wrap_content"
+	 	android:layout_centerHorizontal="true"
+		android:layout_gravity="center"
+	 	android:text="@string/ok"
+	 	/>
+	 
+</LinearLayout>

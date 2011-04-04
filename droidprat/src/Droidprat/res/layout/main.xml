@@ -1,17 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:dp="http://schemas.android.com/apk/res/com.jxdevelopment.droidprat"
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
-	<ScrollView
-	    android:id="@+id/widget54"
-	    android:layout_width="wrap_content"
-	    android:layout_height="fill_parent"
-	    android:layout_weight="100"
-	    >
-	    <ListView android:layout_height="wrap_content" android:id="@+id/listView1" android:layout_width="match_parent"></ListView>
-	</ScrollView>
-    <EditText android:text="@string/enter_msg" android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/editText1" android:layout_gravity="bottom" android:textSize="16sp"></EditText>
-   
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:orientation="horizontal"
+	    android:layout_width="match_parent"
+	    android:layout_height="28dp"
+    	android:layout_gravity="top"
+    	android:background="@color/bgcolor_title"
+	   >
+	   
+<!--
+ 		<com.jxdevelopment.droidprat.TextViewFont
+	        dp:ttf_name="DroidSansPro.ttf"
+-->
+		<ImageView 
+			android:src="@drawable/info" 
+			android:clickable="true" 
+			android:layout_height="26dp" 
+			android:layout_width="26dp" 
+			android:id="@+id/infoButton" 
+			android:layout_gravity="center_vertical|left" 
+			android:layout_weight="1" 
+			android:focusable="true"
+			/>
+		<TextView
+			android:text="@string/app_name" 
+			android:textSize="22sp" 
+			android:id="@+id/title" 
+			android:textStyle="bold" 
+			android:textColor="@color/fgcolor_title" 
+			android:layout_width="wrap_content" 
+			android:layout_height="match_parent" 
+			android:layout_marginLeft="5sp" 
+			android:layout_weight="100"
+			android:layout_gravity="center"
+			android:gravity="center|top"
+			/>
+		<ImageView 
+			android:src="@drawable/gear" 
+			android:clickable="true" 
+			android:layout_height="18dp" 
+			android:layout_width="18dp" 
+			android:id="@+id/prefButton" 
+			android:layout_gravity="center_vertical|right" 
+			android:layout_weight="1" 
+			android:layout_marginRight="5sp" 
+			android:focusable="true"
+			/>
+	</LinearLayout>
+    <ListView
+    	android:id="@+id/lvMessages"
+    	android:layout_width="fill_parent"
+    	android:layout_height="fill_parent"
+    	android:stackFromBottom="true"
+    	android:smoothScrollbar="true"
+    	android:fadeScrollbars="true"
+    	android:layout_weight="100"
+    	android:isScrollContainer="true"
+    	/>
+    <EditText
+    	android:id="@+id/etMessage"
+    	android:layout_width="match_parent"
+    	android:layout_height="wrap_content"
+    	android:layout_gravity="bottom"
+    	android:textSize="16sp"
+    	android:hint="@string/enter_msg"
+    	android:imeOptions="actionSend"
+    	android:singleLine="true"
+    	/>   
 </LinearLayout>

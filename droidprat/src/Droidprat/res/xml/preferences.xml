@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+  xmlns:android="http://schemas.android.com/apk/res/android">
+  <PreferenceCategory android:title="UBB.threads Account">
+  <EditTextPreference
+   android:key="prefUsername"
+   android:title="@string/Username"
+   android:summary="@string/UsernameSummary"
+   android:defaultValue=""
+   />
+  <EditTextPreference
+   android:key="prefPassword"
+   android:title="@string/Password"
+   android:summary="@string/PasswordSummary"
+   android:defaultValue=""
+   android:password="true"
+   />
+  <EditTextPreference
+   android:key="prefBaseURL"
+   android:title="@string/BaseURL"
+   android:summary="@string/BaseURLSummary"
+   android:defaultValue="http://www.rollspel.nu/forum/ubbthreads.php"
+   />
+  <EditTextPreference
+   android:key="prefCookiePrefix"
+   android:title="@string/CookiePrefix"
+   android:summary="@string/CookiePrefixSummary"
+   android:defaultValue="ubb7_"
+   />
+</PreferenceCategory>
+</PreferenceScreen>

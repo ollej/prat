@@ -1,15 +1,25 @@
 TODO:
- * Design list row, with user and avatar
- * Cancel TimerTask when suspending app.
+ X Design list row, with user and avatar
+ X Cancel TimerTask when suspending app.
  X Implement login()
  X Implement sendMessage()
- * Add text box
- * Add configuration view (URL, cookie prefix, username, password)
- * /me
- * highlight rows with matching username
- * Implement getAvatar()
+ X Add text box
+ * Add username colors in theme, or not, just read them from user.
+ X Add configuration view (URL, cookie prefix, username, password)
+ X Message class needs to convert body (for /me etc)
+ X Unescape html
+ X /me
+ X highlight rows with matching username
+ X Implement getAvatar()
+ X Insert avatars into list (keep cache of loaded images)
  X Implement getUsers()
  * Add extra view with user list.
  X Implement deleteMessage()
  * Implement delete message UI
- 
+ * Indicate whether there are new messages and/or mentions while in background.
+ * There seem to be utf8 problems
+ * Add back button to prefs view.
+ X Create info icon in top left corner which opens up an about screen.
+ * Add button for some halibot commands.
+ * Tapping on a row should add that user's name to the textfield and activate it.
+ * Switch to BetterHTTP for Message loading.

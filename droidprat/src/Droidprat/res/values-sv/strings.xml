@@ -1,4 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="enter_msg">Skriv ett meddelande...</string>
+    <string name="Username">Användarnamn</string>
+    <string name="Password">Lösenord</string>
+    <string name="CookiePrefix">Cookie Prefix</string>
+    <string name="BaseURL">URL</string>
+    <string name="UsernameSummary">Fyll i användarnamn att logga in med.</string>
+    <string name="PasswordSummary">Fyll i lösenordet att logga in med.</string>
+    <string name="BaseURLSummary">Fyll i webadressen till den UBB.threads-installation du vill chatta på (lämna som den är).</string>
+    <string name="CookiePrefixSummary">Prefix på cookies från UBB.threads-installationen (lämna som den är).</string>
+    <string name="set_preferences">Ändra inställningar</string>
+    <string name="not_logged_in">Du har inte fyllt i alla nödvändiga inställningar.</string>
+    <string name="enter_prefs">Inställningar saknas</string>
+    <string name="ok">OK</string>
 </resources>

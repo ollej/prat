@@ -4,5 +4,7 @@
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry kind="lib" path="/Users/olle/Applications/java/libs/gson-1.6.jar"/>
+	<classpathentry kind="lib" path="/Users/olle/Applications/java/libs/commons-lang3-3.0-beta.jar"/>
+	<classpathentry kind="lib" path="/Users/olle/Applications/java/libs/droid-fu-1.0-SNAPSHOT-2011-03-08.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

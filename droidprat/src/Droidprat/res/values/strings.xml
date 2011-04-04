@@ -3,4 +3,23 @@
     <string name="hello">Hello World, DroidPrat!</string>
     <string name="app_name">Droidprat</string>
     <string name="enter_msg">Enter message...</string>
+    <string name="Username">Username</string>
+    <string name="Password">Password</string>
+    <string name="CookiePrefix">Cookie Prefix</string>
+    <string name="BaseURL">Base URL</string>
+    <string name="UsernameSummary">Enter your username to log in with.</string>
+    <string name="PasswordSummary">Enter the password for the username.</string>
+    <string name="BaseURLSummary">Enter the URL to the UBB.threads installation you want to chat on (it must support the app).</string>
+    <string name="CookiePrefixSummary">The cookie prefix for the UBB.threads installation. You need to ask the Administrator for this.</string>
+    <string name="set_preferences">Edit Preferences</string>
+    <string name="not_logged_in">You have not entered all required preferences.</string>
+    <string name="enter_prefs">Enter Preferences</string>
+    <string name="ok">OK</string>
+    <string name="about_title">About Droidprat</string>
+    <string name="about_text">Droidprat is a chat app for Android which allows users to chat in the shoutbox of UBB.threads forums.
+&lt;br /&gt;&lt;br /&gt;
+Developed by &lt;b&gt;Olle Johansson&lt;/b&gt;.
+&lt;br /&gt;&lt;br /&gt;
+More information available at http://github.com/ollej/prat
+    </string>
 </resources>
