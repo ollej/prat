@@ -7,12 +7,12 @@ import java.util.TimerTask;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.MatrixCursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.NetworkInfo.State;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -23,6 +23,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -31,7 +32,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.github.droidfu.activities.BetterActivityHelper;
 import com.github.droidfu.activities.BetterDefaultActivity;
 
 public class DroidPrat extends BetterDefaultActivity {
@@ -69,6 +69,7 @@ public class DroidPrat extends BetterDefaultActivity {
 				String msg = etMessage.getText().toString();
 
 				if (msg.compareTo(getResources().getString(R.string.enter_msg)) != 0) {
+					etMessage.setText("");
 					hideVirtualKeyboard();
 					msgHelper.sendMessage(msg);
 				} else {
@@ -88,8 +89,6 @@ public class DroidPrat extends BetterDefaultActivity {
 		super.onCreate(savedInstanceState);
 		
 		setupLayout();
-
-		//setupMessageHandler();
 	}
 
 	@Override
@@ -138,15 +137,7 @@ public class DroidPrat extends BetterDefaultActivity {
 	}
 	
 	public void showOKAlert(int title, int message) {
-		AlertDialog alertDialog = new AlertDialog.Builder(this).create();
-		alertDialog.setTitle(getString(title));
-		alertDialog.setMessage(getString(message));
-		alertDialog.setButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
-		   public void onClick(DialogInterface dialog, int which) {
-			   dialog.cancel();
-		   }
-		});
-		alertDialog.setIcon(R.drawable.info);
+		AlertDialog alertDialog = newInfoDialog(title, message);
 		alertDialog.show();
 	}
 	
@@ -167,7 +158,6 @@ public class DroidPrat extends BetterDefaultActivity {
         Button button = (Button) dialog.findViewById(R.id.btnAboutOk);
         button.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                //dismissDialog();
             	dialog.dismiss();
             }
         });
@@ -200,7 +190,7 @@ public class DroidPrat extends BetterDefaultActivity {
 	 * Hide virtual keyboard
 	 */
 	public void hideVirtualKeyboard() {
-		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+		InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 		imm.hideSoftInputFromWindow(etMessage.getWindowToken(), 0);
 	}
 
@@ -208,16 +198,6 @@ public class DroidPrat extends BetterDefaultActivity {
 	 * 
 	 */
 	public void setupListeners() {
-		// Send message listener on text box
-		etMessage.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-				if (actionId == EditorInfo.IME_ACTION_SEND || actionId == EditorInfo.IME_NULL) {
-					updateHandler.post(sendmsgRunner);
-					return true;
-				}
-				return false;
-			}
-		});
 
 		// Preference button listeners
 		ImageView editPrefs = (ImageView) findViewById(R.id.prefButton);
@@ -238,6 +218,20 @@ public class DroidPrat extends BetterDefaultActivity {
         });
 
 	}
+	
+	public void setupSendMessageListener() {
+		// Send message listener on text box
+		etMessage.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+				if (actionId == EditorInfo.IME_ACTION_SEND || actionId == EditorInfo.IME_NULL) {
+					updateHandler.post(sendmsgRunner);
+					return true;
+				}
+				return false;
+			}
+		});
+		
+	}
 
 	public void setupTask() {
 		// Don't do anything if there isn't an internet connection.
@@ -252,7 +246,9 @@ public class DroidPrat extends BetterDefaultActivity {
 		String userid = checkLogin();
 		Log.d("TIMER", "User logged in: " + userid);
 		if (userid != null && userid.length() > 0 && etMessage != null) {
+			setupSendMessageListener();
 			etMessage.setEnabled(true);
+			hideVirtualKeyboard();
 		}
 		
 		// Setup the message cursor object.
@@ -274,8 +270,12 @@ public class DroidPrat extends BetterDefaultActivity {
 	
 	public boolean hasInternetConnection() {
 		ConnectivityManager conn = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-		if (conn.getNetworkInfo(0).getState() == NetworkInfo.State.CONNECTED ||
-			conn.getNetworkInfo(1).getState() == NetworkInfo.State.CONNECTING) {
+		Log.d("DROIDPRAT", "network0: " + conn.getNetworkInfo(0).getState() + " = " + NetworkInfo.State.CONNECTED +
+				", network1: " + conn.getNetworkInfo(1).getState() + " = " + NetworkInfo.State.CONNECTING);
+		State c0 = conn.getNetworkInfo(0).getState();
+		State c1 = conn.getNetworkInfo(1).getState();
+		if (c0 == NetworkInfo.State.CONNECTED || c0 == NetworkInfo.State.CONNECTING ||
+			c1 == NetworkInfo.State.CONNECTED || c1 == NetworkInfo.State.CONNECTING) {
 			return true;
 		} else if (conn.getNetworkInfo(0).getState() == NetworkInfo.State.DISCONNECTED ||
 				   conn.getNetworkInfo(1).getState() == NetworkInfo.State.DISCONNECTED) {
