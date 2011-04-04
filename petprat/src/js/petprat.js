@@ -28,10 +28,16 @@ Ext.setup({
     icon: 'images/icon.png',
     glossOnIcon: false,
     onReady: function() {
-        var appTitle = 'Pet Prat';
-        var maxMessages = 50;
-        var URL = 'http://www.example.com/forum/ubbthreads.php';
-        var prefix = "ubb7_ubbt_"
+        // Setup configuration from external config file.
+        var appTitle = PETPRAT.APP_TITLE;
+        var maxMessages = PETPRAT.MAX_MESSAGES;
+        var URL = PETPRAT.BASE_URL;
+        var prefix = PETPRAT.COOKIE_PREFIX + "ubbt_";
+        if (!PETPRAT.BASE_URL) {
+            Ext.Msg.alert("Error", "No configuration found!");
+            return;
+        }
+
         var startId = 0;
         var running = false;
         var user = {};
