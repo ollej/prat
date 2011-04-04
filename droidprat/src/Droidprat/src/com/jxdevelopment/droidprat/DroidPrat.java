@@ -1,12 +1,9 @@
 package com.jxdevelopment.droidprat;
 
-import java.lang.ref.SoftReference;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -14,7 +11,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.MatrixCursor;
-import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -33,7 +31,11 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class DroidPrat extends Activity {
+import com.github.droidfu.activities.BetterActivityHelper;
+import com.github.droidfu.activities.BetterDefaultActivity;
+
+public class DroidPrat extends BetterDefaultActivity {
+	private Context ctx;
 	private UBBMessageAdapter msgHelper;
 	private MessageCursorAdapter messageAdapter;
 	private MatrixCursor msgCursor;
@@ -44,6 +46,7 @@ public class DroidPrat extends Activity {
 	private View mainView;
 	private ListView lv;
 	private EditText etMessage;
+	private AlertDialog dlgNoInet;
 	private Timer t = new Timer("messageloading");
 	private TimerTask task = null;
 	private Handler updateHandler = new Handler();
@@ -62,14 +65,17 @@ public class DroidPrat extends Activity {
 	private Runnable sendmsgRunner = new Runnable() {
 		public void run() {
 			Log.d("RUNNER", "Sending message.");
-			String msg = etMessage.getText().toString();
-			
-			if (msg.compareTo(getResources().getString(R.string.enter_msg)) != 0) {
-				etMessage.setText(R.string.enter_msg);
-				hideVirtualKeyboard();
-				msgHelper.sendMessage(msg);
+			if (hasInternetConnection()) {
+				String msg = etMessage.getText().toString();
+
+				if (msg.compareTo(getResources().getString(R.string.enter_msg)) != 0) {
+					hideVirtualKeyboard();
+					msgHelper.sendMessage(msg);
+				} else {
+					Log.d("DROIDPRAT", "Tried sending default message hint.");
+				}
 			} else {
-				Log.d("DROIDPRAT", "Tried sending default message hint.");
+				dlgNoInet.show();
 			}
 		}
 
@@ -80,10 +86,10 @@ public class DroidPrat extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 		super.onCreate(savedInstanceState);
-
+		
 		setupLayout();
 
-		setupMessageHandler();
+		//setupMessageHandler();
 	}
 
 	@Override
@@ -130,7 +136,7 @@ public class DroidPrat extends Activity {
 		}
 		return userid;
 	}
-
+	
 	public void showOKAlert(int title, int message) {
 		AlertDialog alertDialog = new AlertDialog.Builder(this).create();
 		alertDialog.setTitle(getString(title));
@@ -187,7 +193,7 @@ public class DroidPrat extends Activity {
 		// Setup button listeners
 		setupListeners();
 
-
+		dlgNoInet = newInfoDialog(R.string.error_dialog_title, R.string.error_no_inet_conn);
 	}
 
 	/**
@@ -203,7 +209,6 @@ public class DroidPrat extends Activity {
 	 */
 	public void setupListeners() {
 		// Send message listener on text box
-		//etMessage.setImeOptions(EditorInfo.IME_ACTION_SEND);
 		etMessage.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 				if (actionId == EditorInfo.IME_ACTION_SEND || actionId == EditorInfo.IME_NULL) {
@@ -235,12 +240,18 @@ public class DroidPrat extends Activity {
 	}
 
 	public void setupTask() {
+		// Don't do anything if there isn't an internet connection.
+		if (!hasInternetConnection()) {
+			dlgNoInet.show();
+			return;
+		}
+		
 		setupMessageHandler();
 		
 		// Activate text box if user is logged in.
 		String userid = checkLogin();
 		Log.d("TIMER", "User logged in: " + userid);
-		if (userid.length() > 0) {
+		if (userid != null && userid.length() > 0 && etMessage != null) {
 			etMessage.setEnabled(true);
 		}
 		
@@ -256,7 +267,21 @@ public class DroidPrat extends Activity {
 		if (task != null) {
 			task.cancel();
 		}
-		etMessage.setEnabled(false);
+		if (etMessage != null) {
+			etMessage.setEnabled(false);
+		}
+	}
+	
+	public boolean hasInternetConnection() {
+		ConnectivityManager conn = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		if (conn.getNetworkInfo(0).getState() == NetworkInfo.State.CONNECTED ||
+			conn.getNetworkInfo(1).getState() == NetworkInfo.State.CONNECTING) {
+			return true;
+		} else if (conn.getNetworkInfo(0).getState() == NetworkInfo.State.DISCONNECTED ||
+				   conn.getNetworkInfo(1).getState() == NetworkInfo.State.DISCONNECTED) {
+			return false;
+		}
+		return false;
 	}
 
 	/**

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="hello">Hello World, DroidPrat!</string>
     <string name="app_name">Droidprat</string>
     <string name="enter_msg">Enter message...</string>
     <string name="Username">Username</string>
@@ -16,6 +15,8 @@
     <string name="enter_prefs">Enter Preferences</string>
     <string name="ok">OK</string>
     <string name="about_title">About Droidprat</string>
+    <string name="error_no_inet_conn">No internet connection found.</string>
+    <string name="error_dialog_title">Error</string>
     <string name="about_text">Droidprat is a chat app for Android which allows users to chat in the shoutbox of UBB.threads forums.
 &lt;br /&gt;&lt;br /&gt;
 Developed by &lt;b&gt;Olle Johansson&lt;/b&gt;.

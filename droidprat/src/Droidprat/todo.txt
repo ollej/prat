@@ -17,9 +17,10 @@ TODO:
  X Implement deleteMessage()
  * Implement delete message UI
  * Indicate whether there are new messages and/or mentions while in background.
- * There seem to be utf8 problems
+ X There seem to be utf8 problems
  * Add back button to prefs view.
  X Create info icon in top left corner which opens up an about screen.
  * Add button for some halibot commands.
  * Tapping on a row should add that user's name to the textfield and activate it.
  * Switch to BetterHTTP for Message loading.
+ * UBBMessageAdapter should get updated prefs after prefs has been saved.
