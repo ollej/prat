@@ -21,13 +21,15 @@ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
 */
+console.log('Calling Ext.setup()');
 
 Ext.setup({
     tabletStartupScreen: 'images/tablet_startup.png',
     phoneStartupScreen: 'images/phone_startup.png',
     icon: 'images/icon.png',
-    glossOnIcon: false,
+    glossOnIcon: true,
     onReady: function() {
+        console.log('onReady');
         // Setup configuration from external config file.
         var appTitle = PETPRAT.APP_TITLE;
         var maxMessages = PETPRAT.MAX_MESSAGES;
@@ -600,6 +602,27 @@ Ext.setup({
         panel.on('orientationchange', function() {
             this.el.parent().setSize(window.innerWidth, window.innerHeight);
         });
+
+        // Listen to application cache updates.
+        window.applicationCache.addEventListener('updateready', function(e) {
+            if (window.applicationCache.status == window.applicationCache.UPDATEREADY) {
+                // Browser downloaded a new app cache.
+                // Swap it in and reload the page to get the new hotness.
+                window.applicationCache.swapCache();
+                Ext.Msg.confirm(
+                    'Reload application?',
+                    'A new version of this application is available. Do you want to load it?',
+                    function(btn) {
+                        if (btn == 'yes') {
+                            window.location.reload();
+                        }
+                    }
+                );
+            } else {
+                // Manifest didn't changed. Nothing new to server.
+            }
+        }, false);
+        window.applicationCache.update();
 
     }
 });

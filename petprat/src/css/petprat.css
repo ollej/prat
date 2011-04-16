@@ -1,5 +1,13 @@
+.x-list-item {
+    background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#ddd), to(#d7d7d7));
+    text-shadow: 0 1px 1px #fff;
+}
 .avatar { float: left; padding-right: 10px; width: 40px; height: 40px; }
-.avatar img { width: 40px; height: 40px; }
+.avatar img { 
+    width: 40px; height: 40px;
+    border:1px solid #fff;
+    -webkit-box-shadow: 0 2px 4px #777;
+}
 .message-body { margin-left: 50px; min-height: 40px; }
 .message-row { display: block; position: relative; line-height: 15px; }
 .message-info { display: inline-block; margin-right: 10px; float: right;  }
