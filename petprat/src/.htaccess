@@ -1,0 +1,5 @@
+<IfModule mod_expires.c>
+    Header set Cache-Control "public"
+    ExpiresActive On
+    ExpiresByType text/cache-manifest "access plus 0 seconds"
+</IfModule>
