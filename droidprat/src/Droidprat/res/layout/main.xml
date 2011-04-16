@@ -4,6 +4,8 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     >
 	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	    android:orientation="horizontal"
@@ -71,5 +73,7 @@
     	android:hint="@string/enter_msg"
     	android:imeOptions="actionSend"
     	android:singleLine="true"
+    	android:enabled="false"
+    	android:inputType="textAutoCorrect"
     	/>   
 </LinearLayout>

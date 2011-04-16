@@ -21,7 +21,6 @@
 		android:layout_height="200dp"
 		android:layout_gravity="center"
 		>
-	 <!--  @string/about_text -->
 		<TextView 
 			android:text=""
 			android:id="@+id/tvAboutText"
