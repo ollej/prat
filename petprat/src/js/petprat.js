@@ -110,20 +110,23 @@ Ext.setup({
         var highlightMessages = function() {
 	    //console.log('highlightMessages called', user);
             if (!user.username) { return; }
-            var els = Ext.select("div[class*=x-list-item]");
+            var els = Ext.select("div[class*=x-list-item]", messageList.getEl().dom);
             if (!els) {
 		console.log('No messages found.');
 		return;
 	    }
             els.each(function(el, c, idx) {
 		//console.log('checking element:', el);
-                var body = Ext.select("div[class=message-text]", el.dom).first();
-                //console.log("checking body:", body);
-                if (!body) { return; }
-                var bodytext = body.getHTML().toLowerCase();
+                var msgbody = Ext.select("div[class=message-text]", el.dom).first();
+		var msguser = Ext.select("div[class=message-username]", el.dom).first();
+                //console.log("checking body:", msgbody, 'msguser', msguser);
+                if (!msgbody || !msguser) { return; }
+		var slashme = Ext.select("span[class=me]", msgbody.dom).first();
+                var bodytext = msgbody.getHTML().toLowerCase();
                 var username = user.username.toLowerCase();
                 //console.log('bodytext:', bodytext, 'username:', username);
-                if (bodytext.indexOf(username) >= 0) {
+                if (bodytext.indexOf(username) >= 0 &&
+		    !(slashme && msguser.getHTML() == user.username)) {
                     el.addCls("highlightUser");
                 } else {
                     el.removeCls('highlightUser');
@@ -512,6 +515,7 @@ Ext.setup({
             title: 'Messages', scroll: 'vertical', itemSelector: 'div[class*=messageItem]',
             store: msgStore, multiSelect: false, singleSelect: false,
             pinHeaders: false, indexBar: false, pressedCls: '',
+	    cls: 'messageList',
             listeners: { 'itemtap': onTapItem, scope: this },
             itemTpl: new Ext.XTemplate(
                 '<div class="messageItem">',
@@ -538,7 +542,7 @@ Ext.setup({
         var userList = new Ext.List({
             title: 'Users', scroll: 'vertical', itemSelector: 'div[class=user]',
             store: userStore, multiSelect: false, singleSelect: false, //width: 150,
-            pinHeaders: false, indexBar: false,
+            pinHeaders: false, indexBar: false, cls: 'userList',
             //listeners: { 'itemswipe': onSwipeUser, scope: this },
             //fields: ['user_id', 'username', 'avatar', 'title', 'namecolor', 'email', 'homepage',
             //'occupation', 'location', 'hobbies'],
