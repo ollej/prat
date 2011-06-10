@@ -108,23 +108,27 @@ Ext.setup({
             return null;
         };
         var highlightMessages = function() {
+	    //console.log('highlightMessages called', user);
             if (!user.username) { return; }
-            var els = Ext.select("div[class=x-list-item]");
-            if (els) {
-                els.each(function(el, c, idx) {
-                    var body = Ext.select("div[class=message-text]", el.dom).first();
-                    //console.log("checking body:", body);
-                    if (!body) { return; }
-                    var bodytext = body.dom.innerText.toLowerCase();
-                    var username = user.username.toLowerCase();
-                    //console.log('bodytext:', bodytext, 'username:', username);
-                    if (bodytext.indexOf(username) >= 0) {
-                        el.addCls("highlightUser");
-                    } else {
-                        el.removeCls('highlightUser');
-                    }
-                });
-            }
+            var els = Ext.select("div[class*=x-list-item]");
+            if (!els) {
+		console.log('No messages found.');
+		return;
+	    }
+            els.each(function(el, c, idx) {
+		//console.log('checking element:', el);
+                var body = Ext.select("div[class=message-text]", el.dom).first();
+                //console.log("checking body:", body);
+                if (!body) { return; }
+                var bodytext = body.getHTML().toLowerCase();
+                var username = user.username.toLowerCase();
+                //console.log('bodytext:', bodytext, 'username:', username);
+                if (bodytext.indexOf(username) >= 0) {
+                    el.addCls("highlightUser");
+                } else {
+                    el.removeCls('highlightUser');
+                }
+            });
         };
         var updateUser = function(id, data) {
             //console.log('updateUser - user', dump(user), 'data', dump(data));
@@ -273,12 +277,12 @@ Ext.setup({
         var purgeOldUsers = function() {
             //var msgids = getAllUsers(messageList.getRange());
             console.log('Purging old users.');
-            userList.each(function(rec) {
+            userStore.each(function(rec) {
                 var userid = rec.get('user_id');
                 //if (msgids.indexOf(rec.get('user_id')) === -1) {
-                if (messageList.findExact('user_id', rec.get('user_id')) === -1) {
+                if (messageStore.findExact('user_id', rec.get('user_id')) === -1) {
                     console.log('Removing old user:', rec);
-                    userList.remove(rec);
+                    userStore.remove(rec);
                 }
             });
         };
@@ -428,6 +432,7 @@ Ext.setup({
                         if (data && data.length > 0) {
                             var append = startId ? true : false;
                             store.loadData(data, append);
+			    //console.log('firing load event');
                             store.fireEvent('load', store, data, true);
                             //store.fireEvent('add', store, data, true);
                         }
