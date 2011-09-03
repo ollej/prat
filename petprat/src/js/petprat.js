@@ -590,8 +590,8 @@ Ext.setup({
             handler: playPauseHandler
         };
         var textField = new Ext.form.Text({
-            autoComplete: true, autoCapitalize: true, autoCorrect: true, placeHolder: 'Skriv meddelande...',
-            itemId: 'messageField', flex: 1,
+            autoComplete: true, autoCapitalize: true, autoCorrect: false, 
+            placeHolder: 'Skriv meddelande...', itemId: 'messageField', flex: 1,
             listeners: { 'action': { 'fn': sendMessage, 'scope': this } }
         });
 
